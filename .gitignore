@@ -1,12 +1,13 @@
 # Build folder and files #
 ##########################
-builds/
+builds
 
 # Development folders and files #
 #################################
-.tmp/
-dist/
-node_modules/
+node_modules
+dist
+build
+.tmp
 *.compiled.*
 
 # Folder config file #
@@ -46,6 +47,10 @@ npm-debug.log*
 # Windows & Mac file caches #
 #############################
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
 ehthumbs.db
 
@@ -56,3 +61,10 @@ ehthumbs.db
 # IDE files #
 #############################
 .idea
+.vscode
+.firebase
+.git
+.github
+package-lock.json
+yarn.lock
+
