@@ -88,23 +88,6 @@
 
 
 
-.payment-grid,
-.payment-grid-box,
-.payment-grid-inner,
-.payment-info-list,
-.payment-info-values {
-  width: 100%;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  padding-right: "10px"
-}
-
-
 .w100r {
   position: relative
 }
