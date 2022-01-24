@@ -38,14 +38,9 @@ export class ControlGeneral_ extends React.Component {
               </div>
               <div className="block-set__content flex w100 animated">
                 <input
-                  placeholder="JS-variable name"
-                  className={getNonTranslatableViewFieldClass(
-                    this.props.control,
-                    "name",
-                    "input",
-                    true
-                  )}
+                  placeholder="JS-variable name"                  
                   type="text"
+                  className="block-set__input animated"
                   value={this.props.control.attribute}
                   onChange={e => this.onChangeAttribute(e.target.value)}
                 />
@@ -59,12 +54,7 @@ export class ControlGeneral_ extends React.Component {
               <div className="block-set__content flex w100 animated">
                 <input
                   placeholder="name for admin panel only"
-                  className={getNonTranslatableViewFieldClass(
-                    this.props.control,
-                    "name",
-                    "input",
-                    true
-                  )}
+                  className="block-set__input animated"
                   type="text"
                   value={this.props.control.name}
                   onChange={e => this.onChangeName(e.target.value)}
@@ -121,12 +111,8 @@ export class ControlGeneral_ extends React.Component {
               </div>
               <div className="block-set__content flex w100 animated">
                 <textarea
-                  placeholder="Any notes about this control "
-                  className={getNonTranslatableViewFieldClass(
-                    this.props.control,
-                    "description",
-                    "textarea"
-                  )}
+                  placeholder="Any notes about this control"
+                  className="block-set__text-area animated"
                   value={this.props.control.description || ""}
                   onChange={e => this.onChangeDescription(e.target.value)}
                 />
