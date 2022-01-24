@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`>>>Root --- mock store and mock App +++ render the component App: sleep page. No any modals 1`] = `
+<div
+  className="sleep"
+>
+  <div
+    className="sleep__top flex w100r animated"
+    onClick={[Function]}
+  >
+    <span
+      className="wrapper ph-30 animated"
+    >
+      <img
+        className="sleep__image animated"
+        src={
+          Object {
+            "process": [Function],
+          }
+        }
+      />
+      <span
+        className="sleep__touch flex animated"
+      >
+        <img
+          className="sleep__icon animated"
+          src={
+            Object {
+              "process": [Function],
+            }
+          }
+        />
+      </span>
+    </span>
+  </div>
+  <div
+    className="sleep__bottom dark-blue w100r animated"
+  >
+    <div
+      className="sleep__bottom--inner flex wrapper ph-30 animated"
+    >
+      <div
+        className="sleep__title animated"
+        onClick={[Function]}
+      >
+        Touch to Start
+      </div>
+      <button
+        className="sleep__info handicapped flex animated"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt="icon handicapped"
+          className="sleep__info--icon animated"
+          src={
+            Object {
+              "process": [Function],
+            }
+          }
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
