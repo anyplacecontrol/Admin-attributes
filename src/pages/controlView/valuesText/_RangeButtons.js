@@ -29,22 +29,26 @@ export class RangeButtons_ extends React.Component {
 
 //------------------------------------------------------------------------------------
 
-  onChangeButtonsText = (text, buttonIndex, textIndex) => {
-    let englishButtons = this.fillButtons(this.props.control);
+  onChangeButtonsText = (changedText, buttonIndex, textIndex) => {
+    let englishValuesText = this.fillButtons(this.props.control);
 
-    let translatedMetricUi = dataFuncs.getTranslatedViewField(
+    let translatedTextMapping = dataFuncs.getTranslatedViewField(
       this.props.control,
-      translatedMetric => translatedMetric
+      translationObj => translationObj.textMapping
     );
 
-    let translatedButtons = this.fillButtons(translatedMetricUi);
-    translatedButtons[buttonIndex].text[textIndex] = text;
-    translatedButtons[buttonIndex].id = englishButtons[buttonIndex].id;
+    let translatedValuesText = this.fillButtons(translatedTextMapping);
+    translatedValuesText[buttonIndex].text[textIndex] = changedText;
+    translatedValuesText[buttonIndex].attributeValue = englishValuesText[buttonIndex].attributeValue;
 
-    this.props.onChangeButtonsField(
-      [this.props.metricParameter, "buttons"],
-      translatedButtons
+    this.props.dispatch(
+      controlViewActions.changeMultiLanguageTextMappingField("valuesText", translatedValuesText)
     );
+
+    // this.props.onChangeButtonsField(
+    //   [this.props.metricParameter, "buttons"],
+    //   translatedButtons
+    // );
   };
 
 //------------------------------------------------------------------------------------
