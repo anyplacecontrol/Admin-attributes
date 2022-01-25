@@ -56,101 +56,103 @@ export class RangeButtons_ extends React.Component {
         className="block-set__inner flex w100 animated"
         key={"button" + buttonIndex}
       >
-        <div style={{ width: "100px" }}>{"Range № " + id}</div>
+        <div className='block-set-grid'>
+          <div style={{ width: "100px" }}>{"Range № " + id}</div>
 
-        {this.props.control.language === "en" ? (
+          {this.props.control.language === "en" ? (
+            <input
+              placeholder="Min"
+              style={{ width: "100px" }}
+              className="block-set__input animated"
+              type="text"
+              value={this.getRulesValue(buttonIndex, "min")}
+              // onChange={e =>
+              //   this.props.onChangeRulesValue(
+              //     e.target.value,
+              //     buttonIndex,
+              //     "min"
+              //   )
+              // }
+            />
+          ) : (
+            <input
+              placeholder="Min"
+              style={{ width: "100px" }}
+              type="text"
+              readOnly
+            />
+          )}
+
+          {this.props.control.language === "en" ? (
+            <input
+              placeholder="Max"
+              style={{ width: "100px" }}
+              className="block-set__input animated"
+              type="text"
+              value={this.getRulesValue(buttonIndex, "max")}
+              // onChange={e =>
+              //   this.props.onChangeRulesValue(
+              //     e.target.value,
+              //     buttonIndex,
+              //     "min"
+              //   )
+              // }
+            />
+          ) : (
+            <input
+              placeholder="Max"
+              style={{ width: "100px" }}
+              type="text"
+              readOnly
+            />
+          )}
+
+          {/* --- Button Text --- */}
+
           <input
-            placeholder="Min"
+            style={{ width: "100px" }}
+            className={
+              text[0] === ""
+                ? "block-set__input animated is--error"
+                : "block-set__input animated"
+            }
+            placeholder="Button text"
+            name="text0"
+            type="text"
+            value={text[0]}
+            // onChange={e =>
+            //   this.onChangeButtonsText(e.target.value, buttonIndex, 0)
+            // }
+          />
+
+          <input
             style={{ width: "100px" }}
             className="block-set__input animated"
             type="text"
-            value={this.getRulesValue(buttonIndex, "min")}
+            placeholder="Text below button"
+            name="text1"
+            value={text[1]}
             // onChange={e =>
-            //   this.props.onChangeRulesValue(
-            //     e.target.value,
-            //     buttonIndex,
-            //     "min"
-            //   )
+            //   this.onChangeButtonsText(e.target.value, buttonIndex, 1)
             // }
           />
-        ) : (
-          <input
-            placeholder="Min"
-            style={{ width: "100px" }}
-            type="text"
-            readOnly
-          />
-        )}
 
-        {this.props.control.language === "en" ? (
           <input
-            placeholder="Max"
             style={{ width: "100px" }}
             className="block-set__input animated"
             type="text"
-            value={this.getRulesValue(buttonIndex, "max")}
+            placeholder="Text below button"
+            name="text2"
+            value={text[2]}
             // onChange={e =>
-            //   this.props.onChangeRulesValue(
-            //     e.target.value,
-            //     buttonIndex,
-            //     "min"
-            //   )
+            //   this.onChangeButtonsText(e.target.value, buttonIndex, 2)
             // }
           />
-        ) : (
-          <input
-            placeholder="Max"
-            style={{ width: "100px" }}
-            type="text"
-            readOnly
-          />
-        )}
 
-        {/* --- Button Text --- */}
-
-        <input
-          style={{ width: "100px" }}
-          className={
-            text[0] === ""
-              ? "block-set__input animated is--error"
-              : "block-set__input animated"
-          }
-          placeholder="Button text"
-          name="text0"
-          type="text"
-          value={text[0]}
-          // onChange={e =>
-          //   this.onChangeButtonsText(e.target.value, buttonIndex, 0)
-          // }
-        />
-
-        <input
-          style={{ width: "100px" }}
-          className="block-set__input animated"
-          type="text"
-          placeholder="Text below button"
-          name="text1"
-          value={text[1]}
-          // onChange={e =>
-          //   this.onChangeButtonsText(e.target.value, buttonIndex, 1)
-          // }
-        />
-
-        <input
-          style={{ width: "100px" }}
-          className="block-set__input animated"
-          type="text"
-          placeholder="Text below button"
-          name="text2"
-          value={text[2]}
-          // onChange={e =>
-          //   this.onChangeButtonsText(e.target.value, buttonIndex, 2)
-          // }
-        />
-
-        {buttonIndex == translatedTextMapping.valuesText.length-1 ? (
-          <button className="back" />
-        ) : null}
+          {buttonIndex === translatedTextMapping.valuesText.length - 1 ? (
+            <button className="back" />
+          ) : null}
+        </div>
       </div>
     );
   };
