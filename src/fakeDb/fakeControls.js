@@ -9,10 +9,10 @@ export const FAKE_CONTROLS = [
     description: "weight = set of diapasons, quantity = pieces",
     textMapping: {
       title: "Cut Weight",
-      valuesText: [
-        { attributeValue: 1, text: ["0.5-1 lbs", "text 1", "1 serving"] },
+      valuesText: [        
         { attributeValue: 2, text: ["1-1.5 lbs", "text 2", "2 servings"] },
-        { attributeValue: 3, text: ["1.5-2 lbs", "text 3", "3 servings"] }
+        { attributeValue: 1, text: ["0.5-1 lbs", "text 1", "1 serving"] },
+        { attributeValue: 4, text: ["1.5-2 lbs", "text 3", "3 servings"] }
       ]
     },
     translations: {
@@ -20,12 +20,12 @@ export const FAKE_CONTROLS = [
         textMapping: {
           title: "Cortar peso",
           valuesText: [
-            { attributeValue: 1, text: ["0.5-1 lbs", "Texto 1", "1 porcion"] },
+            // { attributeValue: 1, text: ["0.5-1 lbs", "Texto 1", "1 porcion"] },
+            { attributeValue: 3, text: ["1.5-2 lbs", "Texto 3", "3 porciones"] },
             {
               attributeValue: 2,
               text: ["1-1.5 lbs", "Texto 2", "2 porciones"]
-            },
-            { attributeValue: 3, text: ["1.5-2 lbs", "Texto 3", "3 porciones"] }
+            },           
           ]
         }
       }
@@ -33,9 +33,9 @@ export const FAKE_CONTROLS = [
     rules: {
       type: "range",
       valuesText_transformed: [
-        { rangeCode: 1, min: "0", max: "1" }, //Gateway transforms to attributeValue=1
+        { rangeCode: 1, min: "0", max: "1" }, //Gateway transforms to attributeValue=1        
+        { rangeCode: 3, min: "1.5", max: "2" }, //Gateway transforms to attributeValue=3
         { rangeCode: 2, min: "1", max: "1.5" }, //Gateway transforms to attributeValue=2
-        { rangeCode: 3, min: "1.5", max: "5" } //Gateway transforms to attributeValue=3
       ]
     }
   },
@@ -77,12 +77,12 @@ export const FAKE_CONTROLS = [
     translations: {
         es: {
           textMapping: {
-            title: "¿Te gustaría atado?"
-          },
-          valuesText: [
-            { attributeValue: true, text: ["Atado", null, null] },
-            { attributeValue: false, text: ["No atado", null, null] }
-          ]
+            title: "¿Te gustaría atado?",
+            valuesText: [
+              { attributeValue: true, text: ["Atado", null, null] },
+              { attributeValue: false, text: ["No atado", null, null] }
+            ]
+          },         
         }
       },
     rules: {

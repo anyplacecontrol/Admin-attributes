@@ -11,6 +11,7 @@ import {
   IBaseView,
   translateField
 } from "./baseViewRedux";
+import { modifyRule, deleteLastValueText } from "../../pages/controlView/constsAndFuncs";
 
 //*******************************************************************************
 
@@ -32,8 +33,30 @@ const CHANGE_ATTRIBUTE = PREFIX + "CHANGE_ATTRIBUTE";
 const TRIGGER_DISPLAY_IN_CART = PREFIX + "TRIGGER_DISPLAY_IN_CART";
 const CHANGE_TEXTMAPPING_FIELD = PREFIX + "CHANGE_TEXTMAPPING_FIELD";
 const CHANGE_RULES_VALUE = PREFIX + "CHANGE_RULES_VALUE";
+const ADD_VALUE_TEXT = PREFIX + "ADD_VALUE_TEXT";
+const DELETE_LAST_VALUE_TEXT = PREFIX + "DELETE_LAST_VALUE_TEXT";
 
 //*******************************************************************************
+
+export const defaults = {
+  rangeButtons: {
+    textMapping: {
+      valuesText: [{ attributeValue: 1 }, { attributeValue: 2 }]
+    },
+    rules: {
+      type: "range",
+      valuesText_transformed: []
+    }
+  },
+  valueButtons: {
+    textMapping: {
+      valuesText: [{ attributeValue: "" }, { attributeValue: "" }]
+    },
+    rules: {
+      type: "value"
+    }
+  }
+};
 
 export const controlViewInitialState = {
   ...BaseViewInitialState,
@@ -57,11 +80,14 @@ export default function reducer(state = controlViewInitialState, action = {}) {
   if (result) return result;
 
   switch (action.type) {
-    case CHANGE_CONTROL_TYPE:
-      return {
+    case CHANGE_CONTROL_TYPE: {
+      let result = {
         ...controlViewInitialState,
-        controlType: action.controlType
+        controlType: action.controlType,
+        ...defaults[action.controlType]
       };
+      return result;
+    }
 
     case CHANGE_ATTRIBUTE:
       return {
@@ -88,32 +114,45 @@ export default function reducer(state = controlViewInitialState, action = {}) {
 
     //For "range" only
     case CHANGE_RULES_VALUE: {
-      let newRules = JSON.parse(JSON.stringify(state.rules));            
+      let newRules = JSON.parse(JSON.stringify(state.rules)) || {
+        type: "range",
+        valuesText_transformed: []
+      };
 
-      //find rules item with specified rangeId
-      let valuesTextItem = null;
-      for (let i = 0; i < newRules.valuesText_transformed.length; i++) {
-        if (newRules.valuesText_transformed[i].rangeCode == action.rangeCode) {
-          valuesTextItem = newRules.valuesText_transformed[i];
-          break;
-        }
-      }
-
-      //if not found - create new
-      if (!valuesTextItem) {
-        valuesTextItem = { rangeCode: action.rangeCode, min: "", max: "" };
-        newRules.valuesText_transformed.push(valuesTextItem);
-      }
-
-      //modify specified field
-      valuesTextItem[action.fieldName] = action.newValue;
+      modifyRule(newRules, action.rangeCode, action.fieldName, action.newValue);
 
       return {
         ...state,
         rules: newRules
-      }
+      };
     }
-    
+
+    //For rangeButtons and valueButtons
+    case ADD_VALUE_TEXT: {
+      let newTextMapping = JSON.parse(JSON.stringify(state.textMapping)) || {
+        title: "",
+        valuesText: []
+      };
+
+      newTextMapping.valuesText.push({
+        attributeValue: action.attributeValue,
+        text: [null, null, null]
+      });
+
+      return {
+        ...state,
+        textMapping: newTextMapping
+      };
+    }
+
+    case DELETE_LAST_VALUE_TEXT: {      
+      let newState = deleteLastValueText(state);
+
+      return {
+        ...newState,        
+      };
+    }
+
     default:
       return state;
   }
@@ -137,13 +176,13 @@ class ControlViewActions extends BaseViewActions {
       attribute: value
     };
   }
-   
+
   changeRulesValue(newValue, rangeCode, fieldName) {
     return {
       type: CHANGE_RULES_VALUE,
-      newValue, 
-      rangeCode, 
-      fieldName 
+      newValue,
+      rangeCode,
+      fieldName
     };
   }
 
@@ -160,7 +199,20 @@ class ControlViewActions extends BaseViewActions {
       fieldName
     };
   }
-  
+
+  addValueText(attributeValue) {
+    return {
+      type: ADD_VALUE_TEXT,
+      attributeValue
+    };
+  }
+
+  deleteLastValueText() {
+    return {
+      type: DELETE_LAST_VALUE_TEXT,      
+    };
+  }
+
   get _TABLE_ROUTE() {
     return ROUTE_NAMES.controls;
   }

@@ -9,7 +9,6 @@ import { ControlGeneral } from "./ControlGeneral";
 import { RangeButtons } from "./valuesText/RangeButtons";
 
 export class controlView_ extends React.Component {
-
   onChangeLanguage = lang => {
     this.props.dispatch(controlViewActions.changeLanguage(lang));
   };
@@ -24,13 +23,11 @@ export class controlView_ extends React.Component {
         {/* -- ControlTypeSelector-- */}
         <ControlTypeSelector />
 
-        {this.props.control.controlType ? <>  
-        <ControlGeneral />        
+        {this.props.control.controlType ? <ControlGeneral /> : null}
 
-        
-        </> : null}
-
-        <RangeButtons onChangeLanguage={this.onChangeLanguage}/>
+        {this.props.control.controlType === "rangeButtons" ? (
+          <RangeButtons onChangeLanguage={this.onChangeLanguage} />
+        ) : null}
         
       </BaseView>
     );

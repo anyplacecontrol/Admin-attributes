@@ -5,159 +5,71 @@ import { controlViewActions } from "../../../redux/modules/controlViewRedux";
 import { getNonTranslatableViewFieldClass } from "../../../utils/viewValidators";
 import { connect } from "react-redux";
 import * as dataFuncs from "../../../utils/dataFuncs";
+import { LanguageButtons } from "../../../components/LanguageButtons/LanguageButtons";
+import { MultiLanguageInput } from "../../../components/MultiLanguageInput/MultiLanguageInput";
+import {
+  getRulesValue,
+  getTextMapping,
+  fillRangeValuesTexts
+} from "../constsAndFuncs";
 
 export class RangeButtons_ extends React.Component {
-  getTextMapping = (translationObj = this.props.control) => {
-    if (translationObj && translationObj.textMapping)
-      return translationObj.textMapping;
-    else return {};
+  //------------------------------------------------------------------------------------
+
+  onChangeTitle = newValue => {
+    this.props.dispatch(
+      controlViewActions.changeMultiLanguageTextMappingField("title", newValue)
+    );
   };
 
-  getRulesValue = (buttonIndex, fieldName) => {
-    if (!this.props.control) return "";
-    let rules = this.props.control.rules;
-    if (!rules) return "";
-    let values_transformed = rules.valuesText_transformed;
-    if (!values_transformed) return "";
-    let rangeCode = buttonIndex + 1;
-    for (let i = 0; i < values_transformed.length; i++) {
-      if (values_transformed[i].rangeCode == rangeCode) {
-        let buttonRule = values_transformed[i];
-        if (!buttonRule) return "";
-        let result = buttonRule[fieldName];
-        if (result >= 0) return result;
-      }
-    }
-    return "";
+  //------------------------------------------------------------------------------------
+
+  onChangeRulesValue = (newValue, rangeCode, fieldName) => {
+    this.props.dispatch(
+      controlViewActions.changeRulesValue(newValue, rangeCode, fieldName)
+    );
   };
 
-  renderButtonProperties = buttonIndex => {
-    let id = buttonIndex + 1; //this.getId(buttonIndex);
-    let text = [];
+  //------------------------------------------------------------------------------------
+
+  onChangeButtonsText = (changedText, buttonIndex, textIndex) => {
+    let buttonsCount = this.props.control.textMapping.valuesText.length;
+
     let translatedTextMapping = dataFuncs.getTranslatedViewField(
       this.props.control,
-      translationObj => this.getTextMapping(translationObj)
+      translationObj => getTextMapping(translationObj)
     );
 
-    for (let i = 0; i < 3; i++) {
-      let value =
-        translatedTextMapping &&
-        translatedTextMapping.valuesText &&
-        translatedTextMapping.valuesText[buttonIndex] &&
-        translatedTextMapping.valuesText[buttonIndex].text &&
-        translatedTextMapping.valuesText[buttonIndex].text[i]
-          ? translatedTextMapping.valuesText[buttonIndex].text[i]
-          : "";
-      text.push(value);
-    }
+    let translatedValuesText = fillRangeValuesTexts(
+      translatedTextMapping,
+      buttonsCount
+    );
+    translatedValuesText[buttonIndex].text[textIndex] = changedText;
 
-    return (
-      <div
-        className="block-set__inner flex w100 animated"
-        key={"button" + buttonIndex}
-      >
-        <div className="block-set-grid">
-          <div style={{ width: "100px" }}>{"Range № " + id}</div>
-
-          {this.props.control.language === "en" ? (
-            <input
-              placeholder="Min"
-              style={{ width: "100px" }}
-              className="block-set__input animated"
-              type="text"
-              value={this.getRulesValue(buttonIndex, "min")}
-              // onChange={e =>
-              //   this.props.onChangeRulesValue(
-              //     e.target.value,
-              //     buttonIndex,
-              //     "min"
-              //   )
-              // }
-            />
-          ) : (
-            <input
-              placeholder="Min"
-              style={{ width: "100px" }}
-              type="text"
-              readOnly
-            />
-          )}
-
-          {this.props.control.language === "en" ? (
-            <input
-              placeholder="Max"
-              style={{ width: "100px" }}
-              className="block-set__input animated"
-              type="text"
-              value={this.getRulesValue(buttonIndex, "max")}
-              // onChange={e =>
-              //   this.props.onChangeRulesValue(
-              //     e.target.value,
-              //     buttonIndex,
-              //     "min"
-              //   )
-              // }
-            />
-          ) : (
-            <input
-              placeholder="Max"
-              style={{ width: "100px" }}
-              type="text"
-              readOnly
-            />
-          )}
-
-          {/* --- Button Text --- */}
-
-          <input
-            style={{ width: "100px" }}
-            className={
-              text[0] === ""
-                ? "block-set__input animated is--error"
-                : "block-set__input animated"
-            }
-            placeholder="Button text"
-            name="text0"
-            type="text"
-            value={text[0]}
-            // onChange={e =>
-            //   this.onChangeButtonsText(e.target.value, buttonIndex, 0)
-            // }
-          />
-
-          <input
-            style={{ width: "100px" }}
-            className="block-set__input animated"
-            type="text"
-            placeholder="Text below button"
-            name="text1"
-            value={text[1]}
-            // onChange={e =>
-            //   this.onChangeButtonsText(e.target.value, buttonIndex, 1)
-            // }
-          />
-
-          <input
-            style={{ width: "100px" }}
-            className="block-set__input animated"
-            type="text"
-            placeholder="Text below button"
-            name="text2"
-            value={text[2]}
-            // onChange={e =>
-            //   this.onChangeButtonsText(e.target.value, buttonIndex, 2)
-            // }
-          />
-
-          {buttonIndex === translatedTextMapping.valuesText.length - 1 ? (
-            <button className="back" />
-          ) : null}
-        </div>
-      </div>
+    this.props.dispatch(
+      controlViewActions.changeMultiLanguageTextMappingField(
+        "valuesText",
+        translatedValuesText
+      )
     );
   };
 
-  renderValuesTexts = () => {
+  //------------------------------------------------------------------------------------
+
+  onAddValueText = () => {
+    let buttonsCount = this.props.control.textMapping.valuesText.length;
+    this.props.dispatch(controlViewActions.addValueText(buttonsCount + 1));
+  };
+
+  //------------------------------------------------------------------------------------
+
+  onDeleteLastValueText = attributeValue => {
+    this.props.dispatch(controlViewActions.deleteLastValueText(attributeValue));
+  };
+
+  //------------------------------------------------------------------------------------
+
+  renderValuesTexts = renderFunc => {
     if (
       !this.props.control ||
       !this.props.control.textMapping ||
@@ -166,127 +78,190 @@ export class RangeButtons_ extends React.Component {
       return null;
 
     return this.props.control.textMapping.valuesText.map((valueItem, index) => {
-      return this.renderButtonProperties(index);
+      return renderFunc(index);
     });
   };
 
-  renderLabels = () => {
+  renderRangeNumber = index => {
+    return <div className="brand-sub-title">Range №{index + 1}</div>;
+  };
+
+  renderRangeValue = (buttonIndex, fieldName = "min") => {
     return (
       <>
-        <div className="block-set__input animated">Range №1</div>
-        <div className="block-set__input animated">Range №2</div>
+        {this.props.control.language === "en" ? (
+          <input
+            placeholder={fieldName}
+            className="block-set__input animated"
+            type="text"
+            value={getRulesValue(this.props.control, buttonIndex, fieldName)}
+            onChange={e =>
+              this.onChangeRulesValue(
+                e.target.value,
+                buttonIndex + 1,
+                fieldName
+              )
+            }
+          />
+        ) : (
+          <input
+            style={{ border: "1px solid white", boxShadow: "0 1px 3px white" }}
+            placeholder={fieldName}
+            className="block-set__input animated"
+            type="text"
+            value={getRulesValue(this.props.control, buttonIndex, fieldName)}
+            readOnly
+          />
+        )}
       </>
     );
   };
 
-  renderInputs = (arrayName, fieldName) => {
-    return (
-      <>
-        <input
-          className="block-set__input animated"
-          type="text"
-          value="Text x"
+  renderButtonText = (buttonIndex, textIndex) => {
+    let translatedTextMapping = dataFuncs.getTranslatedViewField(
+      this.props.control,
+      translationObj => getTextMapping(translationObj)
+    );
+
+    let text =
+      translatedTextMapping &&
+      translatedTextMapping.valuesText &&
+      translatedTextMapping.valuesText[buttonIndex] &&
+      translatedTextMapping.valuesText[buttonIndex].text &&
+      translatedTextMapping.valuesText[buttonIndex].text[textIndex]
+        ? translatedTextMapping.valuesText[buttonIndex].text[textIndex]
+        : "";
+
+    let input = (
+      <input
+        className={
+          text === ""
+            ? "block-set__input animated is--error"
+            : "block-set__input animated"
+        }
+        placeholder="translated text"
+        type="text"
+        value={text}
+        onChange={e =>
+          this.onChangeButtonsText(e.target.value, buttonIndex, textIndex)
+        }
+      />
+    );
+
+    return textIndex == 2 &&
+      buttonIndex > 1 &&
+      buttonIndex == this.props.control.textMapping.valuesText.length - 1 ? (
+      <div className="payment-grid-box">
+        {input}
+        <button
+          className="payment-grid-item-remove-btn"
+          type="button"
+          onClick={() => this.onDeleteLastValueText(buttonIndex + 1)}
         />
-        <input
-          className="block-set__input animated"
-          type="text"
-          value="Text x"
-        />
-      </>
+      </div>
+    ) : (
+      input
     );
   };
 
+  //=====================================================================================
   render() {
-    let isEditExisting = this.props.control.id > 0;
-
     return (
       <div className="block-set__box flex animated">
-        <div className="block-set__title animated">Ranges and Buttons Text</div>
+        <div className="block-set__inner flex w100 animated">
+          <LanguageButtons
+            language={this.props.control.language}
+            onChangeLanguage={this.props.onChangeLanguage}
+          />
+        </div>
+
+        <div className="block-set__inner flex w100 animated">
+          <div className="block-set__item--inner flex w100 animated">
+            <div className="block-set__sub-title flex w100 animated translatable">
+              Buttons Title*
+            </div>
+            <div
+              className="block-set__content flex w100 animated"
+              style={{ width: "390px" }}
+            >
+              <MultiLanguageInput
+                placeholder="translated title"
+                viewItem={this.props.control}
+                getFieldValue={item =>
+                  item.textMapping && item.textMapping.title
+                    ? item.textMapping.title
+                    : ""
+                }
+                onChange={this.onChangeTitle}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="block-set__title animated">Buttons Text for Ranges</div>
 
         <div className="block-set__inner flex w100 animated">
           <div className="payment-fields">
             <div className="payment-grid">
               <div className="payment-grid-inner">
-                <div className="payment-grid-item">
-                  <div className="brand-sub-title">Range Number</div>
-                  <div className="brand-sub-title">Range №1</div>
-                  <div className="brand-sub-title">Range №2</div>
+                <div
+                  className="payment-grid-item"
+                  style={{ width: "80px", minWidth: "80px" }}
+                >
+                  <div className="brand-sub-title" style={{ height: "15px" }} />
+                  {this.renderValuesTexts(this.renderRangeNumber)}
+                </div>
+                <div
+                  className="payment-grid-item"
+                  style={{ width: "100px", minWidth: "100px" }}
+                >
+                  <div className="brand-sub-title">Range Min *</div>
+                  {this.renderValuesTexts(index =>
+                    this.renderRangeValue(index, "min")
+                  )}
+                </div>
+                <div
+                  className="payment-grid-item"
+                  style={{ width: "100px", minWidth: "100px" }}
+                >
+                  <div className="brand-sub-title">Range Max *</div>
+                  {this.renderValuesTexts(index =>
+                    this.renderRangeValue(index, "max")
+                  )}
                 </div>
                 <div className="payment-grid-item">
-                  <div className="brand-sub-title">Range Min</div>
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="0"
-                  />
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="0"
-                  />
-                </div>
-                <div className="payment-grid-item">
-                  <div className="brand-sub-title">Range Max</div>
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="1"
-                  />
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="1"
-                  />
-                </div>
-                <div className="payment-grid-item">
-                  <div className="brand-sub-title">Button Text *</div>
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="Text x"
-                  />
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="Text x"
-                  />
-                </div>
-                <div className="payment-grid-item">
-                  <div className="brand-sub-title">Text1 below</div>
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="Text x"
-                  />
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="Text x"
-                  />
-                </div>
-                <div className="payment-grid-item">
-                  <div className="brand-sub-title">Text2 below</div>
-                  <input
-                    className="block-set__input animated"
-                    type="text"
-                    value="Text x"
-                  />
-                  <div className="payment-grid-box">
-                    <input
-                      className="block-set__input animated"
-                      type="text"
-                      value="Text x"
-                    />
-                    <button
-                      className="payment-grid-item-remove-btn"
-                      type="button"
-                    />
+                  <div className="brand-sub-title translatable">
+                    Button Text *
                   </div>
+                  {this.renderValuesTexts(index =>
+                    this.renderButtonText(index, 0)
+                  )}
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title translatable">
+                    Text1 below
+                  </div>
+                  {this.renderValuesTexts(index =>
+                    this.renderButtonText(index, 1)
+                  )}
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title translatable">
+                    Text2 below
+                  </div>
+                  {this.renderValuesTexts(index =>
+                    this.renderButtonText(index, 2)
+                  )}
                 </div>
               </div>
             </div>
-            <button className="btn-secondary" type="button">
-              + Добавить оплату
+
+            <button
+              className="buttons__main button--save animated"
+              type="button"
+              onClick={() => this.onAddValueText()}
+            >
+              + Add Range
             </button>
           </div>
         </div>
@@ -297,7 +272,8 @@ export class RangeButtons_ extends React.Component {
 
 RangeButtons_.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  control: controlViewRedux.IControlView
+  control: controlViewRedux.IControlView,
+  onChangeLanguage: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {

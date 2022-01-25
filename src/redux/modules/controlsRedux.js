@@ -1,7 +1,7 @@
 import * as controlsApi from "../../api/controlsApi";
 import * as tableColumns from "../../consts/tableColumns";
 import * as routing from "./routingRedux";
-import {ROUTE_NAMES} from "../../consts/routeNames";
+import { ROUTE_NAMES } from "../../consts/routeNames";
 
 import {
   BaseTableActions,
@@ -9,6 +9,8 @@ import {
   BaseTableReducer,
   BaseTableTypes
 } from "./baseTableRedux";
+
+import {arrangeValuesText} from "../../pages/controlView/constsAndFuncs";
 
 //*******************************************************************************
 const PREFIX = "controls/";
@@ -49,10 +51,8 @@ class ControlsActions extends BaseTableActions {
 
   // *** Filters
   loadFilterItems() {
-    return async (dispatch, getState) => {      
-
-      let filterItems = [        
-      ];
+    return async (dispatch, getState) => {
+      let filterItems = [];
 
       return dispatch({
         type: this._withPrefix(BaseTableTypes.REPLACE_FILTER_ITEMS),
@@ -75,7 +75,10 @@ class ControlsActions extends BaseTableActions {
         itemsPerPage,
         sortBy,
         sortOrder
-      );     
+      );
+
+      //sort valuesText array by attributeValue for all languages
+      arrangeValuesText(fetchedResponse);
 
       return fetchedResponse;
     };
