@@ -56,7 +56,7 @@ export class RangeButtons_ extends React.Component {
         className="block-set__inner flex w100 animated"
         key={"button" + buttonIndex}
       >
-        <div className='block-set-grid'>
+        <div className="block-set-grid">
           <div style={{ width: "100px" }}>{"Range № " + id}</div>
 
           {this.props.control.language === "en" ? (
@@ -170,22 +170,30 @@ export class RangeButtons_ extends React.Component {
     });
   };
 
+  renderLabels = () => {
+    return (
+      <>
+        <div className="block-set__input animated">Range №1</div>
+        <div className="block-set__input animated">Range №2</div>
+      </>
+    );
+  };
+
   renderInputs = (arrayName, fieldName) => {
     return (
-        <>
-        <input          
+      <>
+        <input
           className="block-set__input animated"
           type="text"
           value="Text x"
         />
-        <input          
+        <input
           className="block-set__input animated"
           type="text"
           value="Text x"
         />
-        </>
-      );
-    
+      </>
+    );
   };
 
   render() {
@@ -196,38 +204,92 @@ export class RangeButtons_ extends React.Component {
         <div className="block-set__title animated">Ranges and Buttons Text</div>
 
         <div className="block-set__inner flex w100 animated">
-            <div className="payment-fields">
-              <div className="payment-grid">
-                <div className="payment-grid-inner">
-                  <div className="payment-grid-item">
-                    <div className="brand-sub-title">Оплаченная сумма *</div>
-                    {this.renderInputs()}
-                  </div>
-                  <div className="payment-grid-item">
-                    <div className="brand-sub-title">Тип оплаты</div>
-                    {this.renderInputs()}
-                  </div>
-                  <div className="payment-grid-item">
-                    <div className="brand-sub-title">Дата оплаты *</div>
-                    {this.renderInputs()}
-                  </div>
-                  <div className="payment-grid-item">
-                    <div className="brand-sub-title">
-                      Сотрудник, получивший наличные *
-                    </div>
-                    {this.renderInputs()}
+          <div className="payment-fields">
+            <div className="payment-grid">
+              <div className="payment-grid-inner">
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Range Number</div>
+                  <div className="brand-sub-title">Range №1</div>
+                  <div className="brand-sub-title">Range №2</div>
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Range Min</div>
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="0"
+                  />
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="0"
+                  />
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Range Max</div>
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="1"
+                  />
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="1"
+                  />
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Button Text *</div>
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="Text x"
+                  />
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="Text x"
+                  />
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Text1 below</div>
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="Text x"
+                  />
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="Text x"
+                  />
+                </div>
+                <div className="payment-grid-item">
+                  <div className="brand-sub-title">Text2 below</div>
+                  <input
+                    className="block-set__input animated"
+                    type="text"
+                    value="Text x"
+                  />
+                  <div>
+                    <input
+                      className="block-set__input animated"
+                      type="text"
+                      value="Text x"
+                    />
+                    <button
+                      className="payment-grid-item-remove-btn"
+                      type="button"
+                    />
                   </div>
                 </div>
               </div>
-              <button
-                className="btn-secondary"
-                type="button"               
-              >
-                + Добавить оплату
-              </button>
             </div>
+            <button className="btn-secondary" type="button">
+              + Добавить оплату
+            </button>
           </div>
-      
+        </div>
       </div>
     );
   }
