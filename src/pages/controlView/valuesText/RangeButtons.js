@@ -271,7 +271,7 @@ export class RangeButtons_ extends React.Component {
                     type="text"
                     value="Text x"
                   />
-                  <div>
+                  <div className="payment-grid-box">
                     <input
                       className="block-set__input animated"
                       type="text"
