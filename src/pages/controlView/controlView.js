@@ -5,7 +5,6 @@ import * as controlViewRedux from "../../redux/modules/controlViewRedux";
 import { controlViewActions } from "../../redux/modules/controlViewRedux";
 import { ControlTypeSelector } from "./ControlTypeSelector";
 import { BaseView } from "../../components/BaseView/BaseView";
-import { LanguageButtons } from "../../components/LanguageButtons/LanguageButtons";
 import { ControlGeneral } from "./ControlGeneral";
 import { RangeButtons } from "./valuesText/RangeButtons";
 
@@ -28,13 +27,10 @@ export class controlView_ extends React.Component {
         {this.props.control.controlType ? <>  
         <ControlGeneral />        
 
-        <LanguageButtons
-          language={this.props.control.language}
-          onChangeLanguage={this.onChangeLanguage}
-        />
+        
         </> : null}
 
-        <RangeButtons/>
+        <RangeButtons onChangeLanguage={this.onChangeLanguage}/>
         
       </BaseView>
     );

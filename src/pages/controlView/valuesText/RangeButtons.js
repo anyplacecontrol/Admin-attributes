@@ -170,6 +170,24 @@ export class RangeButtons_ extends React.Component {
     });
   };
 
+  renderInputs = (arrayName, fieldName) => {
+    return (
+        <>
+        <input          
+          className="block-set__input animated"
+          type="text"
+          value="Text x"
+        />
+        <input          
+          className="block-set__input animated"
+          type="text"
+          value="Text x"
+        />
+        </>
+      );
+    
+  };
+
   render() {
     let isEditExisting = this.props.control.id > 0;
 
@@ -177,19 +195,39 @@ export class RangeButtons_ extends React.Component {
       <div className="block-set__box flex animated">
         <div className="block-set__title animated">Ranges and Buttons Text</div>
 
-        {this.renderValuesTexts()}
-
         <div className="block-set__inner flex w100 animated">
-          <button
-            className="buttons__main button--save animated"
-            type="button"
-            // onClick={() =>
-            //   this.props.dispatch(budgetItemViewActions.addIncome())
-            // }
-          >
-            + Add Range
-          </button>
-        </div>
+            <div className="payment-fields">
+              <div className="payment-grid">
+                <div className="payment-grid-inner">
+                  <div className="payment-grid-item">
+                    <div className="brand-sub-title">Оплаченная сумма *</div>
+                    {this.renderInputs()}
+                  </div>
+                  <div className="payment-grid-item">
+                    <div className="brand-sub-title">Тип оплаты</div>
+                    {this.renderInputs()}
+                  </div>
+                  <div className="payment-grid-item">
+                    <div className="brand-sub-title">Дата оплаты *</div>
+                    {this.renderInputs()}
+                  </div>
+                  <div className="payment-grid-item">
+                    <div className="brand-sub-title">
+                      Сотрудник, получивший наличные *
+                    </div>
+                    {this.renderInputs()}
+                  </div>
+                </div>
+              </div>
+              <button
+                className="btn-secondary"
+                type="button"               
+              >
+                + Добавить оплату
+              </button>
+            </div>
+          </div>
+      
       </div>
     );
   }

@@ -33,9 +33,9 @@ export const FAKE_CONTROLS = [
     rules: {
       type: "range",
       valuesText_transformed: [
-        { rangeCode: 1, min: 0, max: 1 }, //Gateway transforms to attributeValue=1
-        { rangeCode: 2, min: 1, max: 1.5 }, //Gateway transforms to attributeValue=2
-        { rangeCode: 3, min: 1.5, max: 5 } //Gateway transforms to attributeValue=3
+        { rangeCode: 1, min: "0", max: "1" }, //Gateway transforms to attributeValue=1
+        { rangeCode: 2, min: "1", max: "1.5" }, //Gateway transforms to attributeValue=2
+        { rangeCode: 3, min: "1.5", max: "5" } //Gateway transforms to attributeValue=3
       ]
     }
   },

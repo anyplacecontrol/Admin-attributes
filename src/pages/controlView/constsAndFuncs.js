@@ -39,3 +39,23 @@ export const allControlTypes = [
     }
     return null;
   }
+
+  //---------------------------------------------------------------------------------------------
+
+  export function getRulesValue(control, buttonIndex, fieldName) {
+    if (!control) return "";
+    let rules = control.rules;
+    if (!rules) return "";
+    let values_transformed = rules.valuesText_transformed;
+    if (!values_transformed) return "";
+    let rangeCode = buttonIndex + 1;
+    for (let i = 0; i < values_transformed.length; i++) {
+      if (values_transformed[i].rangeCode == rangeCode) {
+        let buttonRule = values_transformed[i];
+        if (!buttonRule) return "";
+        let result = buttonRule[fieldName];
+        if (result >= 0) return result;
+      }
+    }
+    return "";
+  }

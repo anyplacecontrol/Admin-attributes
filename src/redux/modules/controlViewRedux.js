@@ -8,7 +8,8 @@ import {
   BaseViewActions,
   BaseViewInitialState,
   BaseViewReducer,
-  IBaseView
+  IBaseView,
+  translateField
 } from "./baseViewRedux";
 
 //*******************************************************************************
@@ -29,6 +30,8 @@ const PREFIX = "controlView/";
 const CHANGE_CONTROL_TYPE = PREFIX + "CHANGE_CONTROL_TYPE";
 const CHANGE_ATTRIBUTE = PREFIX + "CHANGE_ATTRIBUTE";
 const TRIGGER_DISPLAY_IN_CART = PREFIX + "TRIGGER_DISPLAY_IN_CART";
+const CHANGE_TEXTMAPPING_FIELD = PREFIX + "CHANGE_TEXTMAPPING_FIELD";
+const CHANGE_RULES_VALUE = PREFIX + "CHANGE_RULES_VALUE";
 
 //*******************************************************************************
 
@@ -71,6 +74,46 @@ export default function reducer(state = controlViewInitialState, action = {}) {
         ...state,
         displayInCart: !state.displayInCart
       };
+
+    case CHANGE_TEXTMAPPING_FIELD: {
+      return translateField(
+        state,
+        (item, newValue) => {
+          item.textMapping = { ...item.textMapping }; //create metricUi if does not exist
+          item.textMapping[action.fieldName] = newValue;
+        },
+        action.value
+      );
+    }
+
+    //For "range" only
+    case CHANGE_RULES_VALUE: {
+      let newRules = JSON.parse(JSON.stringify(state.rules));            
+
+      //find rules item with specified rangeId
+      let valuesTextItem = null;
+      for (let i = 0; i < newRules.valuesText_transformed.length; i++) {
+        if (newRules.valuesText_transformed[i].rangeCode == action.rangeCode) {
+          valuesTextItem = newRules.valuesText_transformed[i];
+          break;
+        }
+      }
+
+      //if not found - create new
+      if (!valuesTextItem) {
+        valuesTextItem = { rangeCode: action.rangeCode, min: "", max: "" };
+        newRules.valuesText_transformed.push(valuesTextItem);
+      }
+
+      //modify specified field
+      valuesTextItem[action.fieldName] = action.newValue;
+
+      return {
+        ...state,
+        rules: newRules
+      }
+    }
+    
     default:
       return state;
   }
@@ -94,6 +137,15 @@ class ControlViewActions extends BaseViewActions {
       attribute: value
     };
   }
+   
+  changeRulesValue(newValue, rangeCode, fieldName) {
+    return {
+      type: CHANGE_RULES_VALUE,
+      newValue, 
+      rangeCode, 
+      fieldName 
+    };
+  }
 
   triggerDisplayInCart() {
     return {
@@ -101,6 +153,14 @@ class ControlViewActions extends BaseViewActions {
     };
   }
 
+  changeMultiLanguageTextMappingField(fieldName, value) {
+    return {
+      type: CHANGE_TEXTMAPPING_FIELD,
+      value,
+      fieldName
+    };
+  }
+  
   get _TABLE_ROUTE() {
     return ROUTE_NAMES.controls;
   }
