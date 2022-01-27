@@ -13,7 +13,7 @@ import * as tableColumns from "../../consts/tableColumns";
 import {categoriesActions} from "./categoriesRedux";
 import {statusesProductsActions} from "./statusesRedux";
 import {tagsActions} from "./tagsRedux";
-import {metricsActions} from "./metricsRedux";
+import {controlsActions} from "./controlsRedux";
 import {ROUTE_NAMES} from "../../consts/routeNames";
 
 //*******************************************************************************
@@ -188,12 +188,12 @@ class ProductsActions extends BaseTableActions {
 
       let p4 = new Promise(async (resolve, reject) => {
         if (
-          !getState().metrics.items ||
-          getState().metrics.items.length === 0
+          !getState().controls.items ||
+          getState().controls.items.length === 0
         ) {
           try {
             await dispatch(
-              metricsActions.fetchItems(0, false, false, null, true)
+              controlsActions.fetchItems(0, false, false, null, true)
             );
           } catch (e) {
           }

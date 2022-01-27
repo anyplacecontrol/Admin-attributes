@@ -11,7 +11,7 @@ export const FAKE_CONTROLS = [
       title: "Cut Weight",
       valuesText: [        
         { attributeValue: 2, text: ["1-1.5 lbs", "text 2", "2 servings"] },
-        { attributeValue: 1, text: ["0.5-1 lbs", "text 1", "1 serving"] },
+        { attributeValue: 1, text: ["0.5-0.9 lbs", "text 1", "1 serving"] },
         { attributeValue: 4, text: ["1.5-2 lbs", "text 3", "3 servings"] }
       ]
     },
@@ -33,7 +33,7 @@ export const FAKE_CONTROLS = [
     rules: {
       type: "range",
       valuesText_transformed: [
-        { rangeCode: 1, min: "0", max: "1" }, //Gateway transforms to attributeValue=1        
+        { rangeCode: 1, min: "0", max: "0.9" }, //Gateway transforms to attributeValue=1        
         { rangeCode: 3, min: "1.5", max: "2" }, //Gateway transforms to attributeValue=3
         { rangeCode: 2, min: "1", max: "1.5" }, //Gateway transforms to attributeValue=2
       ]
@@ -70,8 +70,8 @@ export const FAKE_CONTROLS = [
     textMapping: {
       title: "Would you like it Tied?",
       valuesText: [
-        { attributeValue: true, text: ["Tied", null, null] },
-        { attributeValue: false, text: ["Not Tied", "", ""] },        
+        { attributeValue: "true", text: ["Tied", null, null] },
+        { attributeValue: "false", text: ["Not Tied", "", ""] },        
       ]
     },
     translations: {
@@ -79,8 +79,8 @@ export const FAKE_CONTROLS = [
           textMapping: {
             title: "¿Te gustaría atado?",
             valuesText: [
-              { attributeValue: true, text: ["Atado", null, null] },
-              { attributeValue: false, text: ["No atado", null, null] }
+              { attributeValue: "true", text: ["Atado", null, null] },
+              { attributeValue: "false", text: ["No atado", null, null] }
             ]
           },         
         }
@@ -101,8 +101,8 @@ export const FAKE_CONTROLS = [
     textMapping: {
       title: "Would you like packed product?",      
       valuesText: [
-        { attributeValue: true, text: ["Yes"] },
-        { attributeValue: false, text: ["No"] }
+        { attributeValue: true, text: ["Yes", "Packed"] },
+        { attributeValue: false, text: ["No", "Not Packed"] }
       ]
     },
     rules: {

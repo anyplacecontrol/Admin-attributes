@@ -1,13 +1,13 @@
 import PropTypes from "prop-types";
-import {ROUTE_NAMES} from "../../consts/routeNames";
-import {IStoreView} from "./storeViewRedux";
-import {ICategoryView} from "./categoryViewRedux";
-import {ITagView} from "./tagViewRedux";
-import {IStatus} from "./statusViewRedux";
-import {productsActions} from "./productsRedux";
-import {categoriesActions} from "./categoriesRedux";
-import {metricsActions} from "./metricsRedux";
-import {tagsActions} from "./tagsRedux";
+import { ROUTE_NAMES } from "../../consts/routeNames";
+import { IStoreView } from "./storeViewRedux";
+import { ICategoryView } from "./categoryViewRedux";
+import { ITagView } from "./tagViewRedux";
+import { IStatus } from "./statusViewRedux";
+import { productsActions } from "./productsRedux";
+import { categoriesActions } from "./categoriesRedux";
+import { metricsActions } from "./metricsRedux";
+import { tagsActions } from "./tagsRedux";
 import * as serviceFuncs from "../../utils/serviceFunctions";
 import * as dataFuncs from "../../utils/dataFuncs";
 import * as viewValidators from "../../utils/viewValidators";
@@ -19,7 +19,8 @@ import {
   IBaseView,
   translateField
 } from "./baseViewRedux";
-import {IImage} from "../../components/ImagesPanel/ImagesPanel";
+import { getControlById } from "../../utils/controlsFuncs";
+import { IImage } from "../../components/ImagesPanel/ImagesPanel";
 
 //*******************************************************************************
 
@@ -42,7 +43,8 @@ export const IProductView = PropTypes.shape({
     //not in DB yet
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired
-  })
+  }),
+  controls: PropTypes.arrayOf(PropTypes.number)
 });
 
 //*******************************************************************************
@@ -60,8 +62,12 @@ const CHANGE_MASTER_PRODUCT_GROUP = PREFIX + "CHANGE_MASTER_PRODUCT_GROUP";
 const CHANGE_MULTILANGUAGE_NAME = PREFIX + "CHANGE_MULTILANGUAGE_NAME";
 const CHANGE_MULTILANGUAGE_DESCRIPTION =
   PREFIX + "CHANGE_MULTILANGUAGE_DESCRIPTION";
+const CHANGE_MULTILANGUAGE_PRICE_MEASURE =
+  PREFIX + "CHANGE_MULTILANGUAGE_PRICE_MEASURE";
 const CHANGE_MULTILANGUAGE_ADDITIONAL_DESCRIPTION =
   PREFIX + "CHANGE_MULTILANGUAGE_ADDITIONAL_DESCRIPTION";
+const DELETE_CONTROLS = PREFIX + "DELETE_CONTROLS";
+const ADD_CONTROL = PREFIX + "ADD_CONTROL";
 
 //*******************************************************************************
 
@@ -76,12 +82,13 @@ export const productViewInitialState = {
   price: 0,
   createdAt: "",
   categories: [],
-  status: {id: 0, name: ""},
+  status: { id: 0, name: "" },
   images: [],
   priority: 0,
   popularity: 0,
   tags: [],
   metric: null, //{id: 0, name: ""},
+  controls: [],
 
   //required only for API provider
   prevCategories: null,
@@ -98,53 +105,77 @@ export default function reducer(state = productViewInitialState, action = {}) {
 
   switch (action.type) {
     case CHANGE_CATEGORIES:
-      return {...state, categories: action.value};
+      return { ...state, categories: action.value };
 
     case CHANGE_TAGS:
-      return {...state, tags: action.value};
+      return { ...state, tags: action.value };
 
+    case DELETE_CONTROLS:
+      return { ...state, controls: [] };
+
+    case ADD_CONTROL: {
+      if (state.controls.includes(action.controlId)) {
+        alert("Unable to add. Already added!");
+        return { ...state };
+      }
+      let controls = [...state.controls, action.controlId];
+      return { ...state, controls };
+    }
 
     case CHANGE_MULTILANGUAGE_NAME: {
       return translateField(
         state,
         (item, newValue) => {
-          item.name = newValue
+          item.name = newValue;
         },
-        action.value);
+        action.value
+      );
     }
 
     case CHANGE_MULTILANGUAGE_DESCRIPTION: {
       return translateField(
         state,
         (item, newValue) => {
-          item.description = newValue
+          item.description = newValue;
         },
-        action.value);
+        action.value
+      );
+    }
+
+    case CHANGE_MULTILANGUAGE_PRICE_MEASURE:{
+      return translateField(
+        state,
+        (item, newValue) => {
+          item.priceMeasure = newValue;
+        },
+        action.value
+      );
     }
 
     case CHANGE_MULTILANGUAGE_ADDITIONAL_DESCRIPTION: {
       return translateField(
         state,
         (item, newValue) => {
-          item.additionalDescription = newValue
+          item.additionalDescription = newValue;
         },
-        action.value);
+        action.value
+      );
     }
 
     case CHANGE_PRICE:
-      return {...state, price: action.value};
+      return { ...state, price: action.value };
 
     case CHANGE_IMAGES:
-      return {...state, images: action.value};
+      return { ...state, images: action.value };
 
     case CHANGE_METRIC:
-      return {...state, metric: action.value};
+      return { ...state, metric: action.value };
 
     case CHANGE_STATUS:
-      return {...state, status: action.value};
+      return { ...state, status: action.value };
 
     case CHANGE_MASTER_PRODUCT_GROUP:
-      return {...state, masterProductGroupName: action.value};
+      return { ...state, masterProductGroupName: action.value };
 
     case CHANGE_PREV_FIELDS:
       return {
@@ -181,13 +212,13 @@ class ProductViewActions extends BaseViewActions {
         //search category with the same name
         for (let i = 0; i < allCategories.length; i++) {
           if (allCategories[i].name === categoryName) {
-            value = [{...allCategories[i]}];
+            value = [{ ...allCategories[i] }];
             break;
           }
         }
       }
 
-      dispatch({type: CHANGE_CATEGORIES, value});
+      dispatch({ type: CHANGE_CATEGORIES, value });
     };
   }
 
@@ -198,9 +229,9 @@ class ProductViewActions extends BaseViewActions {
       if (!status || !statusses) return;
 
       let statusName = status.name;
-      let newStatusName = (status.name === "disabled") ? "enabled": "disabled";
+      let newStatusName = status.name === "disabled" ? "enabled" : "disabled";
       let newStatus = null;
-      for (let i=0; i<statusses.length; i++) {
+      for (let i = 0; i < statusses.length; i++) {
         if (statusses[i].name === newStatusName) {
           newStatus = statusses[i];
           break;
@@ -208,8 +239,8 @@ class ProductViewActions extends BaseViewActions {
       }
       if (!newStatus) return;
 
-      dispatch({type: CHANGE_STATUS, value:newStatus});
-    }
+      dispatch({ type: CHANGE_STATUS, value: newStatus });
+    };
   }
 
   changeTags(selectedTag) {
@@ -221,16 +252,28 @@ class ProductViewActions extends BaseViewActions {
         "id"
       );
 
-      dispatch({type: CHANGE_TAGS, value: newTags});
+      dispatch({ type: CHANGE_TAGS, value: newTags });
     };
   }
 
+  deleteControls() {
+    return { type: DELETE_CONTROLS };
+  }
+
+  addControl(controlId) {
+    return { type: ADD_CONTROL, controlId };
+  }
+
   changeMultiLanguageName(newValue) {
-    return {type: CHANGE_MULTILANGUAGE_NAME, value: newValue};
+    return { type: CHANGE_MULTILANGUAGE_NAME, value: newValue };
   }
 
   changeMultiLanguageDescription(newValue) {
-    return {type: CHANGE_MULTILANGUAGE_DESCRIPTION, value: newValue};
+    return { type: CHANGE_MULTILANGUAGE_DESCRIPTION, value: newValue };
+  }
+
+  changeMultiLanguagePriceMeasure(newValue) {
+    return { type: CHANGE_MULTILANGUAGE_PRICE_MEASURE, value: newValue };
   }
 
   changeMultiLanguageAdditionalDescription(value) {
@@ -241,11 +284,11 @@ class ProductViewActions extends BaseViewActions {
   }
 
   changeMetric(metricObj) {
-    return {type: CHANGE_METRIC, value: metricObj};
+    return { type: CHANGE_METRIC, value: metricObj };
   }
 
   changeMasterProductGroupName(value) {
-    return {type: CHANGE_MASTER_PRODUCT_GROUP, value};
+    return { type: CHANGE_MASTER_PRODUCT_GROUP, value };
   }
 
   addImage(base64file) {
@@ -253,7 +296,7 @@ class ProductViewActions extends BaseViewActions {
       let images = [...getState().productView.images];
 
       if (base64file) {
-        images.push({src: base64file});
+        images.push({ src: base64file });
 
         dispatch({
           type: CHANGE_IMAGES,

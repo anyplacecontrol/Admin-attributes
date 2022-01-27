@@ -1,5 +1,6 @@
-import {isEmpty} from "./serviceFunctions";
+import { isEmpty } from "./serviceFunctions";
 import * as serviceFuncs from "./serviceFunctions";
+import * as controlsFuncs from "./controlsFuncs";
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -14,16 +15,149 @@ export function isEmptyOrLongString(value) {
   if (value.length > 255) return true;
 }
 
-export function isLongString(value) {
+export function isLongString(value, maxLength = 255) {
   if (isEmptyString(value)) return false;
-  if (value.length > 255) return true;
+  if (value.length > maxLength) return true;
 }
+
+export function getPhoneValidationError(phone) {
+  if (isEmptyString(phone)) return null;
+
+  if (phone.indexOf(" ") > 0) return "Spaces are not allowed";
+
+  if (phone.length < 10) return "Too short phone number";
+
+  //Invalid characters
+  let filter = /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g;
+  if (filter.test(phone)) {
+    return null;
+  } else {
+    return "Invalid characters";
+  }
+
+  return null;
+}
+
+function splitCommaToArray(str) {
+  if (isEmptyString(str)) return [];
+
+  let newStr = str.replace(/(\r\n|\n|\r)/gm, ",");
+  let strArr = newStr.split(",");
+  strArr = strArr.filter(function(value, index, arr) {
+    return value != "";
+  });
+  return strArr;
+}
+
+export function getPhonesValidationError(phones) {
+  if (phones.indexOf(" ") > 0) return "Spaces are not allowed";
+
+  let phonesArr = splitCommaToArray(phones);
+
+  for (let i = 0; i < phonesArr.length; i++) {
+    let result = getPhoneValidationError(phonesArr[i]);
+    if (result) return result;
+  }
+
+  return null;
+}
+
+export function getEmailValidationError(emailAddress) {
+  if (isEmptyString(emailAddress)) return null;
+
+  if (emailAddress.indexOf(" ") > 0) return "Spaces are not allowed";
+
+  //looks like email?
+  var lastAtPos = emailAddress.lastIndexOf("@");
+  var lastDotPos = emailAddress.lastIndexOf(".");
+  let looksLikeMail =
+    lastAtPos < lastDotPos &&
+    lastAtPos > 0 &&
+    emailAddress.indexOf("@@") == -1 &&
+    lastDotPos > 2 &&
+    emailAddress.length - lastDotPos > 2;
+  if (!looksLikeMail) return "Wrong format";
+
+  //Invalid characters
+  let filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  if (filter.test(emailAddress)) {
+    return null;
+  } else {
+    return "Invalid characters";
+  }
+}
+
+export function getEmailsValidationError(emails) {
+  if (emails.indexOf(" ") > 0) return "Spaces are not allowed";
+
+  let emailsArr = splitCommaToArray(emails);
+
+  for (let i = 0; i < emailsArr.length; i++) {
+    let result = getEmailValidationError(emailsArr[i]);
+    if (result) return result;
+  }
+
+  return null;
+}
+
+function copyButtonsIds(source, destination) {
+  if (!source || !destination) return;
+
+  if (!source.buttons) {
+    destination.buttons = null;
+    return;
+  }
+
+  destination.buttons = destination.buttons || [];
+
+  for (let i = 0; i < source.buttons.length; i++) {
+    if (!source.buttons[i] || !source.buttons[i].id) {
+      destination.buttons[i] = null;
+      continue;
+    }
+
+    destination.buttons[i] = destination.buttons[i] || {};
+    destination.buttons[i].id = source.buttons[i].id;
+  }
+}
+
+export function getNonTranslatableViewFieldClass(
+  viewItem,
+  fieldName,
+  fieldType,
+  canNotBeEmpty
+) {
+  if (viewItem.language != "en") return "hidden";
+
+  let result = "block-set__input animated"; //<input>
+
+  if (fieldType === "textarea")
+    //<textarea>
+    result = "block-set__text-area animated";
+
+  //select kind of validation: isLongString or isEmptyOrLongString
+  let checkProcedure = isLongString;
+  if (canNotBeEmpty) checkProcedure = isEmptyOrLongString;
+
+  if (!viewItem.isValidated || !checkProcedure(viewItem[fieldName]))
+    return result;
+  else return result + " is--error";
+}
+
+export function getNonTranslatableSelectBoxClass(viewItem, isError) {
+  if (viewItem.language != "en") return "hidden";
+
+  let result = "w100";
+
+  if (!viewItem.isValidated || !isError) return result;
+  else return result + " is--error";
+}
+
+//===========================================================================
 
 export function validateProductView(productView) {
   if (
     isEmptyString(productView.name) ||
-    // isEmptyString(productView.masterProductGroupName) ||
-    // isEmptyString(productView.slug) ||
     !productView.categories ||
     productView.categories.length === 0
   ) {
@@ -33,7 +167,6 @@ export function validateProductView(productView) {
   if (
     isLongString(productView.name) ||
     isLongString(productView.masterProductGroupName) ||
-    // isLongString(productView.slug) ||
     isLongString(productView.description) ||
     isLongString(productView.additionalDescription)
   ) {
@@ -56,8 +189,8 @@ export function validateProductView(productView) {
 
   let result = {
     id: productView.id,
-    name: productView.name,
-    // slug: productView.slug.replace(/\s/g, ""),
+    name: productView.name,    
+    priceMeasure: productView.priceMeasure,
     category: productView.categories[0].slug,
     description: productView.description,
     additionalDescription: productView.additionalDescription,
@@ -68,6 +201,7 @@ export function validateProductView(productView) {
     images: productView.images,
     masterProductGroupName: productView.masterProductGroupName,
     metricId: productView.metric ? productView.metric.id : null,
+    controls: productView.controls,
     translations: productView.translations,
 
     prevCategories: productView.prevCategories,
@@ -81,6 +215,8 @@ export function validateProductView(productView) {
 
   return result;
 }
+
+//------------------------------------------------------------------
 
 export function validateCategoryView(categoryView) {
   if (isEmptyString(categoryView.name) || isEmptyString(categoryView.slug))
@@ -111,6 +247,8 @@ export function validateCategoryView(categoryView) {
   };
 }
 
+//------------------------------------------------------------------
+
 export function validateTagView(tagView) {
   if (isEmptyString(tagView.name)) {
     throw "Validation failed: empty fields";
@@ -121,6 +259,8 @@ export function validateTagView(tagView) {
     name: tagView.name
   };
 }
+
+//------------------------------------------------------------------
 
 export function validateCookingTipsView(cookingTip) {
   if (isEmptyString(cookingTip.title) || isEmptyString(cookingTip.text)) {
@@ -135,13 +275,7 @@ export function validateCookingTipsView(cookingTip) {
   };
 }
 
-// export function validateStatusView(statusView) {
-//   if (isEmptyString(statusView.name) ) {
-//     throw "Error. Field Name is empty";
-//   }
-
-//   return statusView;
-// }
+//------------------------------------------------------------------
 
 export function validateStoreView(storeView) {
   if (isEmptyString(storeView.name) /*|| isEmptyString(storeView.slug)*/) {
@@ -213,6 +347,8 @@ export function validateStoreView(storeView) {
   return result;
 }
 
+//------------------------------------------------------------------
+
 export function validateMachineView(machineView) {
   if (
     isEmptyString(machineView.inventoryNumber) ||
@@ -245,6 +381,8 @@ export function validateMachineView(machineView) {
   return result;
 }
 
+//------------------------------------------------------------------
+
 export function validateKioskView(view) {
   if (isEmptyString(view.inventoryNumber)) {
     throw "Validation failed: empty fields";
@@ -266,6 +404,100 @@ export function validateKioskView(view) {
   };
 }
 
+//------------------------------------------------------------------
+
+export function validateCustomerView(customerView_) {
+  let customerView = { ...customerView_ };
+  if (
+    isEmptyString(customerView.name) &&
+    isEmptyString(customerView.email) &&
+    isEmptyString(customerView.phone)
+  )
+    throw "Please specify either name or email or phone";
+
+  //validate phones
+  let error = getPhoneValidationError(customerView.phone);
+  if (error) throw error;
+
+  error = getPhonesValidationError(customerView.secondaryPhones_asString);
+  if (error) throw error;
+  else
+    customerView.secondaryPhones = splitCommaToArray(
+      customerView.secondaryPhones_asString
+    );
+
+  //validate email
+  error = getEmailValidationError(customerView.email);
+  if (error) throw error;
+
+  error = getEmailsValidationError(customerView.secondaryEmails_asString);
+  if (error) throw error;
+  else
+    customerView.secondaryEmails = splitCommaToArray(
+      customerView.secondaryEmails_asString
+    );
+
+  return customerView;
+}
+
+//------------------------------------------------------------------
+// admin validation
+export function validateUserView(userView_) {
+  let userView = { ...userView_ };
+  if (
+    isEmptyString(userView.firstName) &&
+    isEmptyString(userView.lastName) &&
+    isEmptyString(userView.email) &&
+    isEmptyString(userView.phone)
+  ) {
+    throw "Please specify either names or email or phone";
+  }
+
+  //validate phones
+  let error = getPhoneValidationError(userView.phone);
+  if (error) {
+    throw error;
+  }
+
+  //validate email
+  error = getEmailValidationError(userView.email);
+  if (error) {
+    throw error;
+  }
+
+  return userView;
+}
+
+//------------------------------------------------------------------
+
+export function validateMobileUserView(mobileUserView_) {
+  let mobileUserView = { ...mobileUserView_ };
+  if (
+    isEmptyString(mobileUserView.firstName) &&
+    isEmptyString(mobileUserView.lastName) &&
+    isEmptyString(mobileUserView.email) &&
+    isEmptyString(mobileUserView.phone)
+  ) {
+    throw "Please specify either names or email or phone";
+  }
+
+  //validate phones
+  let error = getPhoneValidationError(mobileUserView.phone);
+  if (error) {
+    throw error;
+  }
+
+  //validate email
+  error = getEmailValidationError(mobileUserView.email);
+  if (error) {
+    throw error;
+  }
+
+  return mobileUserView;
+}
+
+//------------------------------------------------------------------
+
 export function validateMetricButtons(
   metricButtonsObj,
   parameterName,
@@ -284,15 +516,16 @@ export function validateMetricButtons(
         isEmptyString(button.text[0]))
     )
       throw parameterName +
-      " button text for id " +
-      button.id +
-      " in language '" +
-      language +
-      "' is empty";
+        " button text for id " +
+        button.id +
+        " in language '" +
+        language +
+        "' is empty";
 
     if (
       !button.id &&
-      button.text && !isEmptyString(button.text[0]) &&
+      button.text &&
+      !isEmptyString(button.text[0]) &&
       language === "en"
     )
       throw "One of IDs for " + parameterName + " button is empty";
@@ -325,6 +558,8 @@ function validateMetricButtonsForLanguage(metricUi, parameterName, language) {
   );
 }
 
+//------------------------------------------------------------------
+
 function validateTotalWeightForLanguage(metricUi, language) {
   if (!metricUi.totalWeight) return;
 
@@ -340,30 +575,11 @@ function validateTotalWeightForLanguage(metricUi, language) {
       !isEmptyString(metricUi.totalWeight[0]))
   )
     throw "Both fields for Total Weight panel in language '" +
-    language +
-    "' should be either empty or non-empty";
+      language +
+      "' should be either empty or non-empty";
 }
 
-function copyButtonsIds(source, destination) {
-  if (!source || !destination) return;
-
-  if (!source.buttons) {
-    destination.buttons = null;
-    return;
-  }
-
-  destination.buttons = destination.buttons || [];
-
-  for (let i = 0; i < source.buttons.length; i++) {
-    if (!source.buttons[i] || !source.buttons[i].id) {
-      destination.buttons[i] = null;
-      continue;
-    }
-
-    destination.buttons[i] = destination.buttons[i] || {};
-    destination.buttons[i].id = source.buttons[i].id;
-  }
-}
+//------------------------------------------------------------------
 
 function validateWeightRules(view) {
   let isNaN = maybeNaN => maybeNaN != maybeNaN;
@@ -376,24 +592,25 @@ function validateWeightRules(view) {
         let min = parseFloat(obj.min);
         if (isNaN(min))
           throw "Min value for weight (button " +
-          (i + 1) +
-          ") has incorrect format";
+            (i + 1) +
+            ") has incorrect format";
         let max = parseFloat(obj.max);
         if (isNaN(max))
           throw "Max value for weight (button " +
-          (i + 1) +
-          ") has incorrect format";
+            (i + 1) +
+            ") has incorrect format";
       }
     }
   } else {
     //check if all buttons ids are null
     for (let i = 0; i < view.metricUi.weight.buttons.length; i++) {
       if (view.metricUi.weight.buttons[i].id != null)
-        throw "Min and Max values for weight buttons are not specified"
+        throw "Min and Max values for weight buttons are not specified";
     }
-
   }
 }
+
+//------------------------------------------------------------------
 
 export function validateMetricView(view) {
   if (isEmptyString(view.name) || isEmptyString(view.metricUi.priceMeasure)) {
@@ -458,205 +675,166 @@ export function validateMetricView(view) {
     description: view.description,
     metricUi: newMetricUi,
     translations: newTranslations,
-    rules: JSON.parse(JSON.stringify(view.rules)),
+    rules: JSON.parse(JSON.stringify(view.rules))
   };
 }
 
-export function getPhoneValidationError(phone) {
-  if (isEmptyString(phone)) return null;
+//------------------------------------------------------------------
+function validateButtonsText(control) {
+  for (let i = 0; i < control.textMapping.valuesText.length; i++) {
+    let text = control.textMapping.valuesText[i].text[0];
 
-  if (phone.indexOf(" ") > 0) return "Spaces are not allowed";
+    if (isEmptyString(text))
+      throw "Validation failed: Button text for button № " +
+        (i + 1) +
+        " should not be empty";
 
-  if (phone.length < 10) return "Too short phone number";
-
-  //Invalid characters
-  let filter = /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g;
-  if (filter.test(phone)) {
-    return null;
-  } else {
-    return "Invalid characters";
-  }
-
-  return null;
-}
-
-function splitCommaToArray(str) {
-  if (isEmptyString(str)) return [];
-
-  let newStr = str.replace(/(\r\n|\n|\r)/gm, ",");
-  let strArr = newStr.split(",");
-  strArr = strArr.filter(function (value, index, arr) {
-    return value != "";
-  });
-  return strArr;
-}
-
-export function getPhonesValidationError(phones) {
-  if (phones.indexOf(" ") > 0) return "Spaces are not allowed";
-
-  let phonesArr = splitCommaToArray(phones);
-
-  for (let i = 0; i < phonesArr.length; i++) {
-    let result = getPhoneValidationError(phonesArr[i]);
-    if (result) return result;
-  }
-
-  return null;
-}
-
-export function getEmailValidationError(emailAddress) {
-  if (isEmptyString(emailAddress)) return null;
-
-  if (emailAddress.indexOf(" ") > 0) return "Spaces are not allowed";
-
-  //looks like email?
-  var lastAtPos = emailAddress.lastIndexOf("@");
-  var lastDotPos = emailAddress.lastIndexOf(".");
-  let looksLikeMail =
-    lastAtPos < lastDotPos &&
-    lastAtPos > 0 &&
-    emailAddress.indexOf("@@") == -1 &&
-    lastDotPos > 2 &&
-    emailAddress.length - lastDotPos > 2;
-  if (!looksLikeMail) return "Wrong format";
-
-  //Invalid characters
-  let filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  if (filter.test(emailAddress)) {
-    return null;
-  } else {
-    return "Invalid characters";
+    if (isLongString(text, 15)) {
+      throw "Validation failed: Button text for button № " +
+        (i + 1) +
+        " is too long (>15 characters)";
+    }
   }
 }
+//----------
+function validateRangeButtons(control) {
+  let buttonsCount = control.textMapping.valuesText.length;
 
-export function getEmailsValidationError(emails) {
-  if (emails.indexOf(" ") > 0) return "Spaces are not allowed";
+  control.textMapping.valuesText = controlsFuncs.fillRangeValuesTexts(
+    control.textMapping,
+    buttonsCount
+  );
 
-  let emailsArr = splitCommaToArray(emails);
+  if (control.translations)
+    for (var language in control.translations) {
+      //Fill missing items for translations
+      control.translations[
+        language
+      ].textMapping.valuesText = controlsFuncs.fillRangeValuesTexts(
+        control.translations[language].textMapping,
+        buttonsCount
+      );
+    }
 
-  for (let i = 0; i < emailsArr.length; i++) {
-    let result = getEmailValidationError(emailsArr[i]);
-    if (result) return result;
+  //validate rules
+  let rangeEnd = null;
+  for (let i = 0; i < buttonsCount; i++) {
+    let min = controlsFuncs.getRulesValue(control, i, "min");
+    if (isEmptyString(min))
+      throw "Validation failed: Range Min value for Rang № " +
+        (i + 1) +
+        " is not specified";
+    if (!isNumeric(min))
+      throw "Validation failed: Range Min value for Range № " +
+        (i + 1) +
+        " should be numeric";
+    min = parseFloat(min);
+
+    let max = controlsFuncs.getRulesValue(control, i, "max");
+    if (isEmptyString(max))
+      throw "Validation failed: Range Max value for Range № " +
+        (i + 1) +
+        " is not specified";
+    if (!isNumeric(max))
+      throw "Validation failed: Range Max value for Range № " +
+        (i + 1) +
+        " should be numeric";
+    max = parseFloat(max);
+
+    if (max < min)
+      throw "Validation failed: 'Range Max' should be bigger than 'Range Min' for Range № " +
+        (i + 1);
+
+    if (rangeEnd) {
+      if (min <= rangeEnd)
+        throw "Validation failed: 'Range № " +
+          (i + 1) +
+          " should include bigger values than previous ranges";
+    } else rangeEnd = max;
   }
 
-  return null;
+  //validate buttons text
+  validateButtonsText(control);
 }
 
-export function validateCustomerView(customerView_) {
-  let customerView = {...customerView_};
+//----------
+function validateValueButtons(control) {
+  control.textMapping.valuesText = controlsFuncs.fillAttributeValuesTexts(
+    control.textMapping,
+    control
+  );
+
+  if (control.translations)
+    for (var language in control.translations) {
+      //Fill missing items for translations
+      control.translations[
+        language
+      ].textMapping.valuesText = controlsFuncs.fillAttributeValuesTexts(
+        control.translations[language].textMapping,
+        control
+      );
+    }
+
+  //validate values  
+  for (let i = 0; i < control.textMapping.valuesText.length; i++) {
+    //Find the same value for another button
+    for (let j = 0; j < control.textMapping.valuesText.length; j++) {
+      if (i == j) continue;
+      if (
+        control.textMapping.valuesText[i].attributeValue ==
+        control.textMapping.valuesText[j].attributeValue
+      )
+        throw "Validation failed: Values for buttons №" +
+          (i + 1) +
+          " and №" +
+          (j + 1) +
+          " are identical";
+    }
+  }
+  //validate buttons text
+  validateButtonsText(control);
+}
+//----------
+
+export function validateControlView(_control) {
+  if (!_control.controlType)
+    throw "Validation failed: control type is not selected";
+
   if (
-    isEmptyString(customerView.name) &&
-    isEmptyString(customerView.email) &&
-    isEmptyString(customerView.phone)
-  )
-    throw "Please specify either name or email or phone";
-
-  //validate phones
-  let error = getPhoneValidationError(customerView.phone);
-  if (error) throw error;
-
-  error = getPhonesValidationError(customerView.secondaryPhones_asString);
-  if (error) throw error;
-  else
-    customerView.secondaryPhones = splitCommaToArray(
-      customerView.secondaryPhones_asString
-    );
-
-  //validate email
-  error = getEmailValidationError(customerView.email);
-  if (error) throw error;
-
-  error = getEmailsValidationError(customerView.secondaryEmails_asString);
-  if (error) throw error;
-  else
-    customerView.secondaryEmails = splitCommaToArray(
-      customerView.secondaryEmails_asString
-    );
-
-  return customerView;
-}
-
-// admin validation
-export function validateUserView(userView_) {
-  let userView = {...userView_};
-  if (
-    isEmptyString(userView.firstName) &&
-    isEmptyString(userView.lastName) &&
-    isEmptyString(userView.email) &&
-    isEmptyString(userView.phone)
+    isEmptyString(_control.attribute) ||
+    !/^[a-zA-Z]+$/.test(_control.attribute)
   ) {
-    throw "Please specify either names or email or phone";
+    throw "Validation failed: Attribute Name should contains letters only without spaces";
   }
 
-  //validate phones
-  let error = getPhoneValidationError(userView.phone);
-  if (error) {
-    throw error;
-  }
+  if (isEmptyString(_control.name))
+    throw "Validation failed: Control Name should not be empty";
 
-  //validate email
-  error = getEmailValidationError(userView.email);
-  if (error) {
-    throw error;
-  }
-
-  return userView;
-}
-
-export function validateMobileUserView(mobileUserView_) {
-  let mobileUserView = {...mobileUserView_};
   if (
-    isEmptyString(mobileUserView.firstName) &&
-    isEmptyString(mobileUserView.lastName) &&
-    isEmptyString(mobileUserView.email) &&
-    isEmptyString(mobileUserView.phone)
+    isLongString(_control.name) ||
+    isLongString(_control.attribute) ||
+    isLongString(_control.description)
   ) {
-    throw "Please specify either names or email or phone";
+    throw "Validation failed: some general fields are too long (>255 characters)";
   }
 
-  //validate phones
-  let error = getPhoneValidationError(mobileUserView.phone);
-  if (error) {
-    throw error;
+  if (isEmptyString(_control.textMapping.title))
+    throw "Validation failed: Title should not be empty";
+
+  let control = JSON.parse(JSON.stringify(_control));
+
+  switch (control.controlType) {
+    case "rangeButtons": {
+      validateRangeButtons(control);
+      break;
+    }
+    case "valueButtons": {
+      validateValueButtons(control);
+      break;
+    }
+    default:
+      break;
   }
 
-  //validate email
-  error = getEmailValidationError(mobileUserView.email);
-  if (error) {
-    throw error;
-  }
-
-  return mobileUserView;
-}
-
-export function getNonTranslatableViewFieldClass(
-  viewItem,
-  fieldName,
-  fieldType,
-  canNotBeEmpty
-) {
-  if (viewItem.language != "en") return "hidden";
-
-  let result = "block-set__input animated"; //<input>
-
-  if (fieldType === "textarea")
-    //<textarea>
-    result = "block-set__text-area animated";
-
-  //select kind of validation: isLongString or isEmptyOrLongString
-  let checkProcedure = isLongString;
-  if (canNotBeEmpty) checkProcedure = isEmptyOrLongString;
-
-  if (!viewItem.isValidated || !checkProcedure(viewItem[fieldName]))
-    return result;
-  else return result + " is--error";
-}
-
-export function getNonTranslatableSelectBoxClass(viewItem, isError) {
-  if (viewItem.language != "en") return "hidden";
-
-  let result = "w100";
-
-  if (!viewItem.isValidated || !isError) return result;
-  else return result + " is--error";
+  return control;
 }

@@ -5,13 +5,12 @@ import { controlViewActions } from "../../../redux/modules/controlViewRedux";
 import { connect } from "react-redux";
 import * as dataFuncs from "../../../utils/dataFuncs";
 import {
-  getRulesValue,
   getTextMapping,
-  fillRangeValuesTexts
+  fillAttributeValuesTexts
 } from "../../../utils/controlsFuncs";
-import { renderValuesTexts, renderButtonText} from "./renderUtils";
+import { renderValuesTexts, renderButtonText } from "./renderUtils";
 
-export class RangeButtons_ extends React.Component {
+export class ValueButtons_ extends React.Component {
   //------------------------------------------------------------------------------------
 
   onChangeTitle = newValue => {
@@ -22,26 +21,30 @@ export class RangeButtons_ extends React.Component {
 
   //------------------------------------------------------------------------------------
 
-  onChangeRulesValue = (newValue, rangeCode, fieldName) => {
+  onChangeAttributeValue = (newValue, buttonIndex) => {
+    let textMapping = JSON.parse(
+      JSON.stringify(this.props.control.textMapping)
+    );
+    textMapping.valuesText[buttonIndex].attributeValue = newValue;
+
     this.props.dispatch(
-      controlViewActions.changeRulesValue(newValue, rangeCode, fieldName)
+      controlViewActions.changeEnglishTextMapping(textMapping)
     );
   };
 
   //------------------------------------------------------------------------------------
 
   onChangeButtonsText = (changedText, buttonIndex, textIndex) => {
-    let buttonsCount = this.props.control.textMapping.valuesText.length;
-
     let translatedTextMapping = dataFuncs.getTranslatedViewField(
       this.props.control,
       translationObj => getTextMapping(translationObj)
     );
 
-    let translatedValuesText = fillRangeValuesTexts(
+    let translatedValuesText = fillAttributeValuesTexts(
       translatedTextMapping,
-      buttonsCount
+      this.props.control
     );
+
     translatedValuesText[buttonIndex].text[textIndex] = changedText;
 
     this.props.dispatch(
@@ -54,47 +57,51 @@ export class RangeButtons_ extends React.Component {
 
   //------------------------------------------------------------------------------------
 
-  onAddValueText = () => {
-    let buttonsCount = this.props.control.textMapping.valuesText.length;
-    this.props.dispatch(controlViewActions.addValueText(buttonsCount + 1));
+  onAddValueText = () => {    
+    this.props.dispatch(controlViewActions.addValueText(""));
   };
 
   //------------------------------------------------------------------------------------
 
-  onDeleteLastRange = attributeValue => {
-    this.props.dispatch(controlViewActions.deleteLastRange(attributeValue));
+  onDeleteLastValue = attributeValue => {
+    this.props.dispatch(controlViewActions.deleteLastValue(attributeValue));
   };
 
   //------------------------------------------------------------------------------------
 
-  renderRangeNumber = index => {
-    return <div className="brand-sub-title">Range №{index + 1}</div>;
+  renderButtonNumber = index => {
+    return <div className="brand-sub-title">Button №{index + 1}</div>;
   };
 
-  renderRangeValue = (buttonIndex, fieldName = "min") => {
+  renderAttributeValues = buttonIndex => {
+    let control = this.props.control;
+    let text =
+      control.textMapping &&
+      control.textMapping.valuesText &&
+      control.textMapping.valuesText[buttonIndex] &&
+      control.textMapping.valuesText[buttonIndex].attributeValue
+        ? control.textMapping.valuesText[buttonIndex].attributeValue
+        : "";
+
     return (
       <>
         {this.props.control.language === "en" ? (
           <input
-            placeholder={fieldName}
+            placeholder="value"
             className="block-set__input animated"
             type="text"
-            value={getRulesValue(this.props.control, buttonIndex, fieldName)}
+            value={text}
             onChange={e =>
-              this.onChangeRulesValue(
-                e.target.value,
-                buttonIndex + 1,
-                fieldName
-              )
+              this.onChangeAttributeValue(e.target.value, buttonIndex)
             }
           />
         ) : (
           <input
             style={{ border: "1px solid white", boxShadow: "0 1px 3px white" }}
-            placeholder={fieldName}
+            placeholder="value"
             className="block-set__input animated"
             type="text"
-            value={getRulesValue(this.props.control, buttonIndex, fieldName)}
+            value={text}
             readOnly
           />
         )}
@@ -107,7 +114,9 @@ export class RangeButtons_ extends React.Component {
     let control = this.props.control;
     return (
       <>
-        <div className="block-set__title animated">Buttons Text for Ranges</div>
+        <div className="block-set__title animated">
+          Buttons Text for Attribute Values
+        </div>
 
         <div className="block-set__inner flex w100 animated">
           <div className="payment-fields">
@@ -121,25 +130,14 @@ export class RangeButtons_ extends React.Component {
                   style={{ width: "80px", minWidth: "80px" }}
                 >
                   <div className="brand-sub-title" style={{ height: "15px" }} />
-                  {renderValuesTexts(control, this.renderRangeNumber)}
+                  {renderValuesTexts(control, this.renderButtonNumber)}
                 </div>
                 <div
                   className="payment-grid-item"
                   style={{ width: "100px", minWidth: "100px" }}
                 >
-                  <div className="brand-sub-title">Range Min *</div>
-                  {renderValuesTexts(control, index =>
-                    this.renderRangeValue(index, "min")
-                  )}
-                </div>
-                <div
-                  className="payment-grid-item"
-                  style={{ width: "100px", minWidth: "100px" }}
-                >
-                  <div className="brand-sub-title">Range Max *</div>
-                  {renderValuesTexts(control, index =>
-                    this.renderRangeValue(index, "max")
-                  )}
+                  <div className="brand-sub-title">Attribute Value *</div>
+                  {renderValuesTexts(control, this.renderAttributeValues)}
                 </div>
                 <div className="payment-grid-item">
                   <div className="brand-sub-title translatable">
@@ -150,7 +148,7 @@ export class RangeButtons_ extends React.Component {
                       index,
                       0,
                       control,
-                      this.onChangeButtonsText                      
+                      this.onChangeButtonsText                   
                     )
                   )}
                 </div>
@@ -163,7 +161,7 @@ export class RangeButtons_ extends React.Component {
                       index,
                       1,
                       control,
-                      this.onChangeButtonsText                      
+                      this.onChangeButtonsText                     
                     )
                   )}
                 </div>
@@ -177,7 +175,7 @@ export class RangeButtons_ extends React.Component {
                       2,
                       control,
                       this.onChangeButtonsText,
-                      this.onDeleteLastRange
+                      this.onDeleteLastValue
                     )
                   )}
                 </div>
@@ -189,11 +187,16 @@ export class RangeButtons_ extends React.Component {
               type="button"
               onClick={() => this.onAddValueText()}
             >
-              + Add Range
+              + Add Value
             </button>
             <div>
               {
                 "Note: If option 'Display attribute in Kiosk receipt' enabled, Kiosk will use Button Text to display attribute value"
+              }
+            </div>
+            <div>
+              {
+                "Attribute value can be string (case sensitive), number or bool"
               }
             </div>
           </div>
@@ -203,7 +206,7 @@ export class RangeButtons_ extends React.Component {
   }
 }
 
-RangeButtons_.propTypes = {
+ValueButtons_.propTypes = {
   dispatch: PropTypes.func.isRequired,
   control: controlViewRedux.IControlView
 };
@@ -214,4 +217,4 @@ function mapStateToProps(state) {
   };
 }
 
-export const RangeButtons = connect(mapStateToProps)(RangeButtons_);
+export const ValueButtons = connect(mapStateToProps)(ValueButtons_);

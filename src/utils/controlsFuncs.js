@@ -7,7 +7,7 @@ export const allControlTypes = [
       "You should specify min and max values for every range (button).",
       "Ranges should not intersect. First button should present range with smallest values, last button - biggest values."
     ],
-    img: require("../../assets/img/controls/rangeButtons.png")
+    img: require("../assets/img/controls/rangeButtons.png")
   },
   {
     name: "valueButtons",
@@ -15,7 +15,7 @@ export const allControlTypes = [
       "This control presents set of buttons. Every button allows user to select single attribute value.",
       "For example, first button allows to select 'red' string value , another button: 'blue'."
     ],
-    img: require("../../assets/img/controls/valueButton.png")
+    img: require("../assets/img/controls/valueButton.png")
   },
   {
     name: "checkbox",
@@ -92,6 +92,30 @@ export function fillRangeValuesTexts(textMapping, buttonsCount) {
         }
       }
 
+      valuesText.push(button);
+    } else valuesText.push(button);
+  }
+  return valuesText;
+}
+
+//--------------------------------------------------------------------------------------------
+
+export function fillAttributeValuesTexts(textMapping, control) {
+  let buttonsCount = control.textMapping.valuesText.length;
+  let valuesText = [];
+  for (let i = 0; i < buttonsCount; i++) {
+    let button = {
+      attributeValue: control.textMapping.valuesText[i].attributeValue,
+      text: [null, null, null]
+    };
+
+    if (textMapping.valuesText && textMapping.valuesText[i]) {
+      let targetValuesText = textMapping.valuesText[i];
+      
+      for (let j = 0; j < 3; j++) {
+        if (targetValuesText.text && targetValuesText.text[j])
+          button.text[j] = targetValuesText.text[j];
+      }
       valuesText.push(button);
     } else valuesText.push(button);
   }
@@ -197,8 +221,7 @@ export function modifyRule(rules, rangeCode, fieldName, newValue) {
 
 //--------------------------------------------------------------------------------------------
 
-export function deleteLastValueText(state) {
-
+export function deleteLastRange(state) {
   function deleteRangeRule(newState, rangeCode) {
     if (!newState.rules || !newState.rules.valuesText_transformed) return;
 
@@ -237,4 +260,38 @@ export function deleteLastValueText(state) {
     deleteRangeRule(newState, buttonsCount);
 
   return newState;
+}
+
+
+//--------------------------------------------------------------------------------------------
+
+export function deleteLastValue(state) {
+  let control = JSON.parse(JSON.stringify(state));  
+
+  if (control.translations)
+    for (var language in control.translations) {
+      //Fill missing items for translations
+      control.translations[
+        language
+      ].textMapping.valuesText = fillAttributeValuesTexts(
+        control.translations[language].textMapping,
+        control
+      );
+
+      //Delete last array item from translation
+      control.translations[language].textMapping.valuesText.pop();
+    }
+
+  //Delete last array item from English
+  control.textMapping.valuesText.pop();
+  
+  return control;
+}
+
+//--------------------------------------------------------------------------------------------
+export function getControlById(allControls, id) {
+  if (!allControls) return null;
+  for (let i=0; i<allControls.length; i++) {
+    if (allControls[i].id == id) return allControls[i]
+  }
 }

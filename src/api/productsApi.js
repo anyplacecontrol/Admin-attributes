@@ -33,9 +33,8 @@ export async function getItems(
   sortBy = null,
   sortOrder = "descending"
 ) {
-  // if (filter.id && filter.id!="") {
-  //   filter.ids = [filter.id ];
-  // }
+
+  return JSON.parse(JSON.stringify(FAKE_PRODUCTS_RESPONSE));
 
   let result =  await baseAPI.getFilteredItems(
     products_endPoint,
@@ -98,7 +97,7 @@ export async function addItem(productObj) {
     isTagsChangeSuccess = false;
   }
   
-  //TODO: add metric for product
+  
 
   //add image
   let isImageChangeSuccess = await imagesApi.changeImages(

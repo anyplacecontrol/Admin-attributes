@@ -10,7 +10,7 @@ import {
   BaseTableTypes
 } from "./baseTableRedux";
 
-import {arrangeValuesText} from "../../pages/controlView/constsAndFuncs";
+import {arrangeValuesText} from "../../utils/controlsFuncs";
 
 //*******************************************************************************
 const PREFIX = "controls/";

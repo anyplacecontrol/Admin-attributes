@@ -1,26 +1,26 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 import * as productViewRedux from "../../redux/modules/productViewRedux";
-import {categoriesActions} from "../../redux/modules/categoriesRedux";
+import { categoriesActions } from "../../redux/modules/categoriesRedux";
 import * as routing from "../../redux/modules/routingRedux";
-import {ProductGeneral} from "./ProductGeneral";
-import {ProductPricing} from "./ProductPricing";
-import {ImagesPanel} from "../../components/ImagesPanel/ImagesPanel";
-import {ItemViewTopButtons} from "../../components/ItemViewTopButtons/ItemViewTopButtons";
-import {ProductDetails} from "./ProductDetails";
-import {ICategoryView} from "../../redux/modules/categoryViewRedux";
-import {ITagView} from "../../redux/modules/tagViewRedux";
-import {IMetricView} from "../../redux/modules/metricViewRedux";
-import {tagsActions} from "../../redux/modules/tagsRedux";
-import {metricsActions} from "../../redux/modules/metricsRedux";
-import {BaseView} from "../../components/BaseView/BaseView";
-import {LanguageButtons} from "../../components/LanguageButtons/LanguageButtons";
+import { ProductGeneral } from "./ProductGeneral";
+import { ProductPricing } from "./ProductPricing";
+import { ImagesPanel } from "../../components/ImagesPanel/ImagesPanel";
+import { ProductDetails } from "./ProductDetails";
+import { ICategoryView } from "../../redux/modules/categoryViewRedux";
+import { ITagView } from "../../redux/modules/tagViewRedux";
+import { IMetricView } from "../../redux/modules/metricViewRedux";
+import { tagsActions } from "../../redux/modules/tagsRedux";
+import { metricsActions } from "../../redux/modules/metricsRedux";
+import { controlsActions } from "../../redux/modules/controlsRedux";
+import { BaseView } from "../../components/BaseView/BaseView";
+import { ProductControls } from "./ProductControls";
 
 export class productView_ extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {price: "0.00"};
+    this.state = { price: "0.00" };
   }
 
   UNSAFE_componentWillReceiveProps = nextProps => {
@@ -28,7 +28,7 @@ export class productView_ extends React.Component {
     if (nextProps.product && nextProps.product.price) {
       price = nextProps.product.price;
     } else price = "0.00";
-    this.setState({price});
+    this.setState({ price });
   };
 
   changePriceInRedux = async () => {
@@ -60,13 +60,25 @@ export class productView_ extends React.Component {
 
   onChangeDescription = newValue => {
     this.dispatchWithPrice(
-      productViewRedux.productViewActions.changeMultiLanguageDescription(newValue)
+      productViewRedux.productViewActions.changeMultiLanguageDescription(
+        newValue
+      )
+    );
+  };
+
+  onChangePriceMeasure = newValue => {
+    this.dispatchWithPrice(
+      productViewRedux.productViewActions.changeMultiLanguagePriceMeasure(
+        newValue
+      )
     );
   };
 
   onChangeAdditionalDescription = newValue => {
     this.dispatchWithPrice(
-      productViewRedux.productViewActions.changeMultiLanguageAdditionalDescription(newValue)
+      productViewRedux.productViewActions.changeMultiLanguageAdditionalDescription(
+        newValue
+      )
     );
   };
 
@@ -83,7 +95,7 @@ export class productView_ extends React.Component {
   };
 
   onChangePrice = newValue => {
-    this.setState({price: newValue});
+    this.setState({ price: newValue });
   };
 
   onChangePriority = newValue => {
@@ -94,9 +106,7 @@ export class productView_ extends React.Component {
   };
 
   onTriggerStatus = () => {
-    this.dispatchWithPrice(
-      productViewRedux.productViewActions.triggerStatus()
-    );
+    this.dispatchWithPrice(productViewRedux.productViewActions.triggerStatus());
   };
 
   onChangeTags = selectedTag => {
@@ -123,16 +133,31 @@ export class productView_ extends React.Component {
     );
   };
 
-  onChangeLanguage = (lang) => {
+  onChangeLanguage = lang => {
     this.dispatchWithPrice(
       productViewRedux.productViewActions.changeLanguage(lang)
+    );
+  };
+
+  onDeleteControls = () => {
+    this.dispatchWithPrice(
+      productViewRedux.productViewActions.deleteControls()
+    );
+  }
+
+  onAddControl = (control) => {
+    if (!control) return;
+    this.dispatchWithPrice(
+      productViewRedux.productViewActions.addControl(control.id)
     );
   }
 
   beforeOnSubmitClick = async () => {
     await this.changePriceInRedux();
-    this.props.dispatch(productViewRedux.productViewActions.changeLanguage("en"));
-  }
+    this.props.dispatch(
+      productViewRedux.productViewActions.changeLanguage("en")
+    );
+  };
 
   render() {
     return (
@@ -141,7 +166,6 @@ export class productView_ extends React.Component {
         actionsProvider={productViewRedux.productViewActions}
         beforeOnSubmitClick={this.beforeOnSubmitClick}
       >
-
         {/* -- General-- */}
         <ProductGeneral
           product={this.props.product}
@@ -171,6 +195,14 @@ export class productView_ extends React.Component {
           onChangeMasterProductGroupName={this.onChangeMasterProductGroupName}
           onChangeTags={this.onChangeTags}
           onChangeMetric={this.onChangeMetric}
+          onChangePriceMeasure={this.onChangePriceMeasure}
+        />
+
+        <ProductControls
+          allControls={this.props.allControls}
+          product={this.props.product}
+          onDeleteControls={this.onDeleteControls}
+          onAddControl={this.onAddControl}
         />
 
         {/* -- Images-- */}
@@ -194,6 +226,7 @@ productView_.propTypes = {
   dispatch: PropTypes.func.isRequired,
 
   product: productViewRedux.IProductView,
+  allControls: PropTypes.arrayOf(PropTypes.object).isRequired,
   allCategories: PropTypes.arrayOf(ICategoryView).isRequired,
   allTags: PropTypes.arrayOf(ITagView).isRequired,
   allMetrics: PropTypes.arrayOf(IMetricView).isRequired
@@ -204,7 +237,8 @@ function mapStateToProps(state) {
     product: state.productView,
     allCategories: categoriesActions.getItems(state),
     allTags: tagsActions.getItems(state),
-    allMetrics: metricsActions.getItems(state)
+    allMetrics: metricsActions.getItems(state),
+    allControls: controlsActions.getItems(state)
   };
 }
 

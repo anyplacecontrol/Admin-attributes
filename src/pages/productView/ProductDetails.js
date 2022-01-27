@@ -86,7 +86,7 @@ export class ProductDetails extends React.Component {
               <MultiLanguageInput
                 placeholder="Name on the Kiosk's product screen"
                 viewItem={this.props.product}
-                getFieldValue={(item)=>item.name || ""}
+                getFieldValue={item => item.name || ""}
                 onChange={this.props.onChangeName}
                 canNotBeEmpty
               />
@@ -130,14 +130,14 @@ export class ProductDetails extends React.Component {
         {/* ---Right side---- */}
         <div className="block-set__item flex animated">
           {/* -- Metric -- */}
-          <div className="block-set__item--inner flex w100 animated">
+          {/* <div className="block-set__item--inner flex w100 animated">
             <div className="block-set__sub-title flex w100 animated">
               Metric
             </div>
             <div className="block-set__content flex w100 animated">
               {this.renderMetricsSelectBox()}
             </div>
-          </div>
+          </div> */}
           {/* --- Tag--- */}
           <div className="block-set__item--inner flex w100 animated">
             <div className="block-set__sub-title flex w100 animated">Tag</div>
@@ -160,18 +160,34 @@ export class ProductDetails extends React.Component {
           {/* ---Additional description--- */}
           <div className="block-set__item--inner flex w100 animated">
             <div className="block-set__sub-title translatable flex w100 animated">
+              Price per what?
+            </div>
+            <div className="block-set__content flex w100 animated">
+              <MultiLanguageInput                
+                placeholder="eg. 'lb' or 'piece'"
+                viewItem={this.props.product}
+                getFieldValue={item => item.priceMeasure || ""}
+                onChange={this.props.onChangePriceMeasure}
+              />
+            </div>
+          </div>
+
+          {/* ---Additional description--- */}
+          <div className="block-set__item--inner flex w100 animated">
+            <div className="block-set__sub-title translatable flex w100 animated">
               Additional Description
             </div>
             <div className="block-set__content flex w100 animated">
               <MultiLanguageInput
-                placeholder="eg. for sausages: 'Pack of 4 - approx. 1lb'"
+                placeholder="eg. 'Pack of 4 - approx. 1lb'"
                 viewItem={this.props.product}
-                getFieldValue={(item)=>item.additionalDescription || ""}
+                getFieldValue={item => item.additionalDescription || ""}
                 onChange={this.props.onChangeAdditionalDescription}
               />
             </div>
           </div>
 
+          {/* --- description--- */}
           <div className="block-set__item--inner flex w100 animated">
             <div className="block-set__sub-title translatable flex w100 animated">
               Description
@@ -181,7 +197,7 @@ export class ProductDetails extends React.Component {
                 inputType="textarea"
                 placeholder="Description on the Kiosk's product screen"
                 viewItem={this.props.product}
-                getFieldValue={(item)=>item.description || ""}
+                getFieldValue={item => item.description || ""}
                 onChange={this.props.onChangeDescription}
               />
             </div>
@@ -201,6 +217,7 @@ ProductDetails.propTypes = {
   onChangeCategory: PropTypes.func.isRequired,
   onChangeName: PropTypes.func.isRequired,
   onChangeDescription: PropTypes.func.isRequired,
+  onChangePriceMeasure: PropTypes.func.isRequired,
   onChangeSlug: PropTypes.func.isRequired,
   onChangeMasterProductGroupName: PropTypes.func.isRequired,
   onChangeAdditionalDescription: PropTypes.func.isRequired,

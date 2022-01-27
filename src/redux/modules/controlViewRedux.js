@@ -11,7 +11,7 @@ import {
   IBaseView,
   translateField
 } from "./baseViewRedux";
-import { modifyRule, deleteLastValueText } from "../../pages/controlView/constsAndFuncs";
+import { modifyRule, deleteLastRange, deleteLastValue } from "../../utils/controlsFuncs";
 
 //*******************************************************************************
 
@@ -31,10 +31,12 @@ const PREFIX = "controlView/";
 const CHANGE_CONTROL_TYPE = PREFIX + "CHANGE_CONTROL_TYPE";
 const CHANGE_ATTRIBUTE = PREFIX + "CHANGE_ATTRIBUTE";
 const TRIGGER_DISPLAY_IN_CART = PREFIX + "TRIGGER_DISPLAY_IN_CART";
-const CHANGE_TEXTMAPPING_FIELD = PREFIX + "CHANGE_TEXTMAPPING_FIELD";
+const CHANGE_TRANSLATED_TEXTMAPPING_FIELD = PREFIX + "CHANGE_TRANSLATED_TEXTMAPPING_FIELD";
+const CHANGE_ENGLISH_TEXTMAPPING = PREFIX + "CHANGE_ENGLISH_TEXTMAPPING";
 const CHANGE_RULES_VALUE = PREFIX + "CHANGE_RULES_VALUE";
 const ADD_VALUE_TEXT = PREFIX + "ADD_VALUE_TEXT";
-const DELETE_LAST_VALUE_TEXT = PREFIX + "DELETE_LAST_VALUE_TEXT";
+const DELETE_LAST_RANGE = PREFIX + "DELETE_LAST_RANGE";
+const DELETE_LAST_VALUE = PREFIX + "DELETE_LAST_VALUE";
 
 //*******************************************************************************
 
@@ -101,11 +103,18 @@ export default function reducer(state = controlViewInitialState, action = {}) {
         displayInCart: !state.displayInCart
       };
 
-    case CHANGE_TEXTMAPPING_FIELD: {
+    case CHANGE_ENGLISH_TEXTMAPPING: {
+      return {
+        ...state,
+        textMapping: action.value
+      };
+    }
+
+    case CHANGE_TRANSLATED_TEXTMAPPING_FIELD: {
       return translateField(
         state,
         (item, newValue) => {
-          item.textMapping = { ...item.textMapping }; //create metricUi if does not exist
+          item.textMapping = { ...item.textMapping }; //create textMapping if does not exist
           item.textMapping[action.fieldName] = newValue;
         },
         action.value
@@ -145,8 +154,18 @@ export default function reducer(state = controlViewInitialState, action = {}) {
       };
     }
 
-    case DELETE_LAST_VALUE_TEXT: {      
-      let newState = deleteLastValueText(state);
+    //For rangeButtons
+    case DELETE_LAST_RANGE: {      
+      let newState = deleteLastRange(state);
+
+      return {
+        ...newState,        
+      };
+    }
+
+    //For valueButtons
+    case DELETE_LAST_VALUE: {
+      let newState = deleteLastValue(state);
 
       return {
         ...newState,        
@@ -192,11 +211,18 @@ class ControlViewActions extends BaseViewActions {
     };
   }
 
-  changeMultiLanguageTextMappingField(fieldName, value) {
+  changeTranslatedTextMappingField(fieldName, value) {
     return {
-      type: CHANGE_TEXTMAPPING_FIELD,
+      type: CHANGE_TRANSLATED_TEXTMAPPING_FIELD,
       value,
       fieldName
+    };
+  }
+
+  changeEnglishTextMapping(value) {
+    return {
+      type: CHANGE_ENGLISH_TEXTMAPPING,
+      value
     };
   }
 
@@ -207,9 +233,15 @@ class ControlViewActions extends BaseViewActions {
     };
   }
 
-  deleteLastValueText() {
+  deleteLastRange() {
     return {
-      type: DELETE_LAST_VALUE_TEXT,      
+      type: DELETE_LAST_RANGE,      
+    };
+  }
+  
+  deleteLastValue() {
+    return {
+      type: DELETE_LAST_VALUE,      
     };
   }
 
@@ -232,7 +264,7 @@ class ControlViewActions extends BaseViewActions {
   }
 
   _validateView(itemObj) {
-    //return viewValidators.validateControlView(itemObj);
+    return viewValidators.validateControlView(itemObj);
   }
 
   _isNewItem(itemObj) {

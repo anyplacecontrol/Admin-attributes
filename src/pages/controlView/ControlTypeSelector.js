@@ -4,13 +4,13 @@ import { SelectBox } from "../../components/SelectBox/SelectBox";
 import * as dataFuncs from "../../utils/dataFuncs";
 import * as controlViewRedux from "../../redux/modules/controlViewRedux";
 import { controlViewActions } from "../../redux/modules/controlViewRedux";
-import * as constsAndFuncs from "./constsAndFuncs";
+import * as controlsFuncs from "../../utils/controlsFuncs";
 import { connect } from "react-redux";
 
 export class _ControlTypeSelector extends React.Component {
 
   renderControlDescription = () => {
-    let controlTypeInfo = constsAndFuncs.getControlTypeInfo(
+    let controlTypeInfo = controlsFuncs.getControlTypeInfo(
       this.props.control.controlType
     );
     if (!controlTypeInfo) return null;
@@ -21,7 +21,7 @@ export class _ControlTypeSelector extends React.Component {
   };
 
   renderControlImage = () => {
-    let controlTypeInfo = constsAndFuncs.getControlTypeInfo(
+    let controlTypeInfo = controlsFuncs.getControlTypeInfo(
       this.props.control.controlType
     );
     if (!controlTypeInfo || !controlTypeInfo) return null;
@@ -54,7 +54,7 @@ export class _ControlTypeSelector extends React.Component {
                     style={{ zIndex: 2 }}
                     text={this.props.control.controlType || "Select"}
                     items={dataFuncs.createSelectBoxItems(
-                      constsAndFuncs.allControlTypes,
+                      controlsFuncs.allControlTypes,
                       "name",                     
                       this.onChangeControlType
                     )}
